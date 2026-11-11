@@ -134,8 +134,8 @@
     padding: 0 14px 0 12px;
     background: var(--qq-topbar);
     border-bottom: 1px solid var(--qq-border);
-    border-radius: 0 0 14px 14px;
-    box-shadow: 0 3px 10px rgba(0, 0, 0, .08);
+    border-radius: 0;
+    box-shadow: none;
   }
 
   :root[data-skin="classic"][data-style="qq"] .qq-brand {
@@ -220,14 +220,13 @@
 
   :root[data-skin="classic"][data-style="qq"] .app:not(.popout) .classic-rail {
     top: 46px;
-    border-top-left-radius: 12px;
-    overflow: hidden;
   }
 
   :root[data-skin="classic"][data-style="qq"] .app:not(.popout) .sidebar {
     top: 46px;
     left: var(--rail);
-    border-radius: 0;
+    border-radius: 12px 0 0 0;
+    overflow: hidden;
     padding-top: 12px;
   }
 
@@ -238,7 +237,7 @@
 
   :root[data-skin="classic"][data-style="qq"] .app:not(.popout) .conversation-body {
     box-shadow: inset 1px 0 0 var(--qq-border);
-    border-top-right-radius: 12px;
+    border-radius: 12px 12px 0 0;
     overflow: hidden;
   }
 }
