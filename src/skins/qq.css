@@ -66,7 +66,7 @@
   --classic-hover: rgba(24, 29, 36, .045);
   --classic-active: #eceef1;
   --classic-pinned: rgba(24, 29, 36, .028);
-  --classic-rail-icon: rgba(243, 247, 252, .7);
+  --classic-rail-icon: #3a3f47;
   --classic-red: #ff5a61;
   --classic-panel-shadow: -12px 0 28px rgba(27, 33, 42, .08);
   --qq-shell: #f4f5f7;
@@ -390,9 +390,23 @@
 
 :root[data-skin="classic"][data-style="qq"] .conversation .unread-badge,
 :root[data-skin="classic"][data-style="qq"] .conversation.active .unread-badge {
+  position: absolute;
+  top: auto;
+  right: 10px;
+  bottom: 10px;
+  left: auto;
   color: #fff;
   background: var(--classic-red);
-  box-shadow: 0 0 0 2px var(--classic-list);
+  box-shadow: none;
+}
+
+:root[data-skin="classic"][data-style="qq"] .conversation.muted:not(.mentioned) .unread-badge {
+  top: auto;
+  right: 14px;
+  bottom: 14px;
+  left: auto;
+  width: 9px;
+  height: 9px;
 }
 
 @media (hover: hover) and (pointer: fine) {
