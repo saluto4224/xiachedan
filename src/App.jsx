@@ -141,6 +141,7 @@ export default function App() {
   const [removing, setRemoving] = useState(null);
   const [showMembers, setShowMembers] = useState(false);
   const [panelView, setPanelView] = useState('members');
+  const [memberQuery, setMemberQuery] = useState('');
   const [preview, setPreview] = useState(null);
   // 从合并转发的聊天记录里看图时，左右切换的范围是那份记录里的图片。
   const [previewImages, setPreviewImages] = useState(null);
@@ -179,6 +180,8 @@ export default function App() {
   // 面板自己、打开面板的按钮，以及从面板里弹出的对话框、菜单、资料卡不算「外面」。
   useEffect(() => {
     if (!showMembers) return;
+    // QQ 宽屏的成员栏是固定侧栏，点击聊天区不应把它当成浮层关掉。
+    if (skin === 'qq' && matchMedia('(min-width: 1100px)').matches) return;
     const dismiss = event => {
       const target = event.target;
       if (!(target instanceof Element) || target.closest('.members-panel, .member-count, dialog, [role="menu"], .profile-card, .read-detail')) return;
@@ -198,7 +201,7 @@ export default function App() {
     };
     window.addEventListener('linliao:back', back);
     return () => window.removeEventListener('linliao:back', back);
-  }, [contextMenu, profileCard, readDetail, reactingTo, selection, showMembers, mobileChat, mobileTab]);
+  }, [contextMenu, profileCard, readDetail, reactingTo, selection, showMembers, mobileChat, mobileTab, skin]);
   const { privateMode, privacyRef, changePrivacy, windowActive } = useDesktopBridge({ notify, onPendingRoom: openRoom,
     onOpenRoom: roomId => { openRoom(roomId); setModal(null); setSearch(''); } });
   // 应用锁：锁着时整个界面不可操作，通知也按隐私模式只显示「新消息」。
@@ -217,6 +220,14 @@ export default function App() {
     syncHistory, receive, markMessageRead, loadOlder: fetchOlder, loadThrough, updateMe, applyReactions, applyEdit, typing, sendTyping, pinsVersion, savedVersion, applyPoll, threadTick, applyNote, applyFolders, applyKeywords, applyPhrases, hideLocally } = useChatSession({ selected, notify, privacyRef: noticePrivacy, mutedRef: mutedRooms, onHistoryChanged });
   const { rooms: conversations, scope: conversationScope, restore: restoreConversation, act: conversationAction, reorder: reorderPinned } =
     useConversations({ state, spaceId: bootstrap?.spaceId, selected, onSelect: setSelected, notify });
+  const selectedConversationKind = conversations.find(chat => chat.id === selected)?.kind;
+  // QQ 宽屏默认展示右侧群成员栏，贴近桌面 QQ 的群聊布局。
+  useEffect(() => {
+    if (skin !== 'qq' || selectedConversationKind === 'direct' || !selectedConversationKind || !matchMedia('(min-width: 1100px)').matches) return;
+    setPanelView('members');
+    setShowMembers(true);
+  }, [skin, selected, selectedConversationKind]);
+  useEffect(() => setMemberQuery(''), [selected]);
   const pinnedDrag = usePinnedDrag(ids => reorderPinned(ids, conversationScope));
   const outbox = useOutbox({ storageKey: conversationScope && `linliao.outbox:${conversationScope}`, connected: connected && !loggingOut, onSent: receive });
   mutedRooms.current = new Set(conversations.filter(room => room.muted).map(room => room.id));
@@ -446,7 +457,8 @@ export default function App() {
   // 资料卡贴着头像弹出：头像在右半边时卡片放在左侧。
   function openProfile(user, element) {
     const rect = element.getBoundingClientRect();
-    setProfileCard({ userId: user.id, x: rect.left > innerWidth / 2 ? rect.left - 268 : rect.right + 8, y: rect.top });
+    const cardWidth = skin === 'qq' ? 360 : 268;
+    setProfileCard({ userId: user.id, x: rect.left > innerWidth / 2 ? rect.left - cardWidth - 8 : rect.right + 8, y: rect.top });
   }
   // 群聊头像和成员列表：单击看资料卡，双击直接发起私聊；单击稍等一下，免得双击时卡片闪一下。键盘回车立即打开。
   // 私聊里已经在和对方说话：单击只看资料卡，不等待双击。
@@ -675,6 +687,8 @@ export default function App() {
   const rooms = conversations.map(room => ({ ...room, name: roomName(room) }));
   const room = rooms.find(room => room.id === selected && !room.hidden);
   const groupMembers = !room ? [] : room.kind === 'public' ? state.users.filter(user => !user.removed) : state.users.filter(user => !user.removed && room.members.includes(user.id));
+  const memberNeedle = memberQuery.trim().toLowerCase();
+  const visiblePanelMembers = memberNeedle ? groupMembers.filter(user => [user.name, user.department, user.bio].some(value => value?.toLowerCase().includes(memberNeedle))) : groupMembers;
   const online = state.users.filter(user => !user.removed && user.online);
   latest.current = { messageMenu, userMap, displayUser, jumpToMessage, toggleReaction, votePoll, closePoll, openThread, markMessageRead, openProfile, selectMessage,
     joinGroup: async ({ roomId, token }) => {
@@ -934,7 +948,9 @@ export default function App() {
         ? <RoomFiles room={room} userMap={userMap} privateMode={privateMode} historyVersion={historyVersion} onBack={() => setPanelView('members')} onPreview={setPreview} onJump={jumpToMessage} />
         : panelView === 'history'
         ? <HistorySearch room={room} userMap={userMap} members={groupMembers} privateMode={privateMode} historyVersion={historyVersion} onBack={() => setPanelView('members')} onJump={jumpToMessage} />
-        : <><div className="members-panel-heading"><h3>{threePane ? '聊天信息' : '会话成员'} <small>{groupMembers.length}</small></h3><IconButton icon={X} label="关闭成员面板" size={15} onClick={() => setShowMembers(false)} /></div>{room.kind === 'group' && <button className="add-member-button" onClick={() => setModal('addMembers')}><UserPlus size={15} />邀请成员</button>}<button className="history-entry" onClick={() => setPanelView('history')}><MessagesSquare size={16} /><span>聊天记录</span><ChevronRight size={14} /></button><button className="history-entry" onClick={() => setPanelView('files')}><Images size={16} /><span>图片与文件</span><ChevronRight size={14} /></button><button className="history-entry" onClick={() => downloadExport(room.id)}><Download size={16} /><span>导出聊天记录</span></button>
+        : <><div className="members-panel-heading"><h3>{skin === 'qq' ? (room.kind === 'direct' ? '聊天信息' : '群聊成员') : threePane ? '聊天信息' : '会话成员'} <small>{groupMembers.length}</small></h3><IconButton icon={X} label="关闭成员面板" size={15} onClick={() => setShowMembers(false)} /></div>
+          {skin === 'qq' && room.kind !== 'direct' && <label className="qq-member-search"><Search size={14} /><input aria-label="搜索群成员" placeholder="搜索群成员" value={memberQuery} onChange={event => setMemberQuery(event.target.value)} />{memberQuery && <IconButton icon={X} label="清空成员搜索" size={13} onClick={() => setMemberQuery('')} />}</label>}
+          {room.kind === 'group' && <button className="add-member-button" onClick={() => setModal('addMembers')}><UserPlus size={15} />邀请成员</button>}<button className="history-entry" onClick={() => setPanelView('history')}><MessagesSquare size={16} /><span>聊天记录</span><ChevronRight size={14} /></button><button className="history-entry" onClick={() => setPanelView('files')}><Images size={16} /><span>图片与文件</span><ChevronRight size={14} /></button><button className="history-entry" onClick={() => downloadExport(room.id)}><Download size={16} /><span>导出聊天记录</span></button>
           {room.kind === 'group' && (editingNickname !== null
             ? <form className="nickname-form" onSubmit={event => { event.preventDefault(); saveNickname(editingNickname); }}><input autoFocus aria-label="我在本群的昵称" maxLength={16} placeholder={`留空则显示「${userMap[state.me.id]?.name}」`} value={editingNickname} onChange={event => setEditingNickname(event.target.value)} onKeyDown={event => { if (event.key === 'Escape') { event.preventDefault(); setEditingNickname(null); } }} />
                 <button type="button" className="secondary-button" onClick={() => setEditingNickname(null)}>取消</button><button className="primary-button">保存</button></form>
@@ -965,7 +981,7 @@ export default function App() {
               <p>{room.announcement?.text || '暂无公告'}</p></section>
           </>}
           {room.kind === 'public' && (isOwner || isAdmin) && <button className="history-entry" onClick={() => setGroupAction({ type: 'webhooks' })}><Bot size={16} /><span>大厅机器人</span><ChevronRight size={14} /></button>}
-          <div className="members-list">{groupMembers.map(user => memberRow(user, 30, room.kind === 'group', true))}</div>
+          <div className="members-list">{visiblePanelMembers.map(user => memberRow(user, 30, room.kind === 'group', true))}{memberNeedle && !visiblePanelMembers.length && <p className="qq-member-empty">没有找到匹配的群成员</p>}</div>
           {room.kind === 'group' && <button className="leave-group" onClick={() => setGroupAction({ type: 'leave' })}><LogOut size={15} />退出群聊</button>}</>}</aside>}</div>
       </> : <div className="empty-conversation"><MessageCircle size={32} /><h2>选择一个对话</h2><button className="secondary-button" onClick={() => setModal('members')}>发起私聊</button></div>}
     </main>

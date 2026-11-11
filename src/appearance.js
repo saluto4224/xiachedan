@@ -56,13 +56,22 @@ export function applyAppearance({ accent, fontSize, wallpaper }) {
   const root = document.documentElement.style;
   const valid = Boolean(accent) && /^#[0-9a-f]{6}$/i.test(accent);
   // 经典风格自己的气泡：浅色模式用主题色的浅色调，深色模式用主题色本身，都配深色文字并保证对比度不低于 4.5。
-  // QQ 风格的发送气泡固定配白字，因此两种外观都使用与白色对比度达标的主题色。
+  // QQ 浅色模式使用浅蓝气泡配深色文字；深色模式使用压暗的蓝灰气泡配白字。
   const lightTheme = document.documentElement.dataset.theme === 'light';
   const outBase = toRgb(valid ? accent : DEFAULT_ACCENT);
   const qq = document.documentElement.dataset.style === 'qq';
-  root.setProperty('--bubble-out', toHex(qq
-    ? readable(outBase, [255, 255, 255], [0, 0, 0])
-    : readable(lightTheme ? mix(outBase, [255, 255, 255], .5) : outBase, INK, [255, 255, 255])));
+  for (const name of ['--bubble-out-text', '--out-text-2', '--out-fill', '--out-fill-2', '--out-line']) root.removeProperty(name);
+  if (qq) {
+    const bubble = lightTheme ? mix(outBase, [255, 255, 255], .72) : mix(outBase, toRgb('#202126'), .64);
+    root.setProperty('--bubble-out', toHex(bubble));
+    root.setProperty('--bubble-out-text', lightTheme ? '#142331' : '#ffffff');
+    root.setProperty('--out-text-2', lightTheme ? 'rgba(20, 35, 49, .66)' : 'rgba(255, 255, 255, .78)');
+    root.setProperty('--out-fill', lightTheme ? 'rgba(20, 35, 49, .08)' : 'rgba(255, 255, 255, .14)');
+    root.setProperty('--out-fill-2', lightTheme ? 'rgba(20, 35, 49, .15)' : 'rgba(255, 255, 255, .24)');
+    root.setProperty('--out-line', lightTheme ? 'rgba(20, 35, 49, .22)' : 'rgba(255, 255, 255, .3)');
+  } else {
+    root.setProperty('--bubble-out', toHex(readable(lightTheme ? mix(outBase, [255, 255, 255], .5) : outBase, INK, [255, 255, 255])));
+  }
   root.setProperty('--chat-font', `${fontSize}px`);
   const background = wallpaperCss(wallpaper, document.documentElement.dataset.theme === 'light', wallpaper === 'custom' ? readWallpaperImage() : null);
   if (background) { root.setProperty('--wallpaper', background); document.documentElement.dataset.wallpaper = wallpaper; }
