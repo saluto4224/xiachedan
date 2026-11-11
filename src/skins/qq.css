@@ -8,7 +8,7 @@
   --classic-window: #232324;
   --classic-list: #222222;
   --classic-field: #34363b;
-  --classic-search: #222222;
+  --classic-search: #2f2f2f;
   --classic-box: #202126;
   --classic-box-line: rgba(255, 255, 255, .09);
   --classic-box-focus: rgba(24, 144, 255, .65);
@@ -307,6 +307,10 @@
   color: var(--text-1);
   background: var(--classic-field);
   box-shadow: none;
+}
+
+:root[data-skin="classic"][data-style="qq"][data-theme="dark"] .classic-plus {
+  background: #2f2f2f;
 }
 
 :root[data-skin="classic"][data-style="qq"] .classic-plus svg {
