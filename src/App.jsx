@@ -846,6 +846,7 @@ export default function App() {
     else messageGroups.push({ newDay, messages: [message], timeLabel: threePane && (newDay || message.createdAt - previous.createdAt >= 5 * 60000) ? classicTime(message.createdAt) : null });
   }
   return <>{appLock.locked && <LockScreen appLock={appLock} onLogout={logout} loggingOut={loggingOut} />}<div inert={appLock.locked} className={`app ${popoutRoom ? 'popout' : ''} ${privateMode ? 'privacy-on' : ''} ${nativeTitlebar ? 'native' : ''} ${mobileChat ? 'show-chat' : ''} ${compact ? 'compact-sidebar' : ''}`} style={{ '--sidebar': `${sidebarWidth}px` }} data-screen-label="虾扯蛋聊天空间">
+    {skin === 'qq' && !popoutRoom && <header className="qq-app-bar" data-drag-region><button type="button" className="qq-self" aria-label="修改昵称和头像" title="修改昵称和头像" onClick={() => setModal('profile')}><Avatar user={userMap[state.me.id] || state.me} size={32} online={connected} /><span><b>{userMap[state.me.id]?.name || state.me.name}</b><small>{activeStatus(userMap[state.me.id]) ? `${activeStatus(userMap[state.me.id]).emoji} ${activeStatus(userMap[state.me.id]).text}` : userMap[state.me.id]?.bio || (connected ? '在线' : '正在连接…')}</small></span></button></header>}
     {threePane && !popoutRoom && <nav className="classic-rail" aria-label="导航">
       <div className="rail-drag" data-drag-region aria-hidden="true" />
       <button type="button" className="rail-me" aria-label="修改昵称和头像" title={`${state.me.name} · ${state.workspace.name}`} onClick={() => setModal('profile')}><Avatar user={userMap[state.me.id] || state.me} size={36} /></button>

@@ -69,6 +69,12 @@
   --classic-rail-icon: rgba(243, 247, 252, .7);
   --classic-red: #ff5a61;
   --classic-panel-shadow: -12px 0 28px rgba(27, 33, 42, .08);
+  --qq-shell: #f4f5f7;
+  --qq-rail: #f7f8fa;
+  --qq-rail-strong: #f7f8fa;
+  --qq-rail-icon: #333941;
+  --qq-sky: #0b8ff1;
+  --qq-border: rgba(24, 29, 36, .085);
   --qq-selected: #e9ebef;
   --qq-selected-hover: #e2e5ea;
   --qq-selected-text: #1b1e23;
@@ -101,6 +107,10 @@
   background: var(--qq-shell);
 }
 
+:root[data-skin="classic"][data-style="qq"] .qq-app-bar {
+  display: none;
+}
+
 :root[data-skin="classic"][data-style="qq"] .conversation-body {
   background: var(--canvas);
   box-shadow: none;
@@ -111,13 +121,70 @@
 }
 
 @media (min-width: 761px) {
+  :root[data-skin="classic"][data-style="qq"] .qq-app-bar {
+    position: absolute;
+    z-index: 9;
+    inset: 0 0 auto;
+    display: flex;
+    align-items: center;
+    height: 46px;
+    padding-left: 10px;
+    background: var(--classic-window);
+    border-bottom: 1px solid var(--qq-border);
+  }
+
+  :root[data-skin="classic"][data-style="qq"] .qq-self {
+    display: flex;
+    align-items: center;
+    gap: 9px;
+    height: 40px;
+    padding: 0 8px 0 2px;
+    border-radius: 6px;
+    text-align: left;
+  }
+
+  :root[data-skin="classic"][data-style="qq"] .qq-self > span:not(.avatar) {
+    min-width: 0;
+    display: flex;
+    align-items: baseline;
+    gap: 7px;
+  }
+
+  :root[data-skin="classic"][data-style="qq"] .qq-self b {
+    max-width: 112px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    font-size: 14px;
+    font-weight: 600;
+  }
+
+  :root[data-skin="classic"][data-style="qq"] .qq-self small {
+    max-width: 150px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    font-size: 11px;
+    color: var(--text-2);
+  }
+
+  :root[data-skin="classic"][data-style="qq"] .qq-self:hover {
+    background: var(--classic-hover);
+  }
+
+  :root[data-skin="classic"][data-style="qq"] .app:not(.popout) .classic-rail {
+    top: 46px;
+  }
+
   :root[data-skin="classic"][data-style="qq"] .app:not(.popout) .sidebar {
+    top: 46px;
     left: var(--rail);
     border-radius: 0;
     padding-top: 12px;
   }
 
   :root[data-skin="classic"][data-style="qq"] .app:not(.popout) .chat-main {
+    padding-top: 46px;
     padding-left: calc(var(--rail) + var(--sidebar));
   }
 
@@ -129,6 +196,7 @@
 /* 窄导航：接近 QQ 桌面端的黑色功能栏，当前图标只做轻量高亮。 */
 :root[data-skin="classic"][data-style="qq"] .classic-rail {
   gap: 5px;
+  border-right: 1px solid var(--qq-border);
   background: linear-gradient(180deg, var(--qq-rail-strong), var(--qq-rail) 72%);
 }
 
@@ -169,6 +237,26 @@
 
 :root[data-skin="classic"][data-style="qq"] .rail-button.active svg {
   fill: none;
+}
+
+:root[data-skin="classic"][data-style="qq"][data-theme="light"] .rail-button.active {
+  color: var(--qq-sky);
+  background: #edf0f3;
+  box-shadow: none;
+}
+
+:root[data-skin="classic"][data-style="qq"][data-theme="light"] .rail-button.active svg {
+  fill: currentColor;
+  stroke-width: 1.5;
+}
+
+:root[data-skin="classic"][data-style="qq"][data-theme="light"] .rail-button svg {
+  stroke-width: 1.7;
+}
+
+:root[data-skin="classic"][data-style="qq"][data-theme="light"] .rail-me {
+  border-color: #d9dde2;
+  box-shadow: none;
 }
 
 :root[data-skin="classic"][data-style="qq"] .rail-badge {
@@ -367,6 +455,14 @@
   padding: 1px 5px;
   border-radius: 4px;
   background: transparent;
+}
+
+:root[data-skin="classic"][data-style="qq"][data-theme="dark"] .time-divider span {
+  padding: 3px 10px;
+  border-radius: 999px;
+  background: #1c1d21;
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, .055);
+  color: rgba(255, 255, 255, .45);
 }
 
 :root[data-skin="classic"][data-style="qq"] .message-bubble {
