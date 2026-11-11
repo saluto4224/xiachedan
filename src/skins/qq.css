@@ -219,11 +219,13 @@
   }
 
   :root[data-skin="classic"][data-style="qq"] .app:not(.popout) .classic-rail {
-    top: 46px;
+    top: 54px;
+    border-top-left-radius: 12px;
+    overflow: hidden;
   }
 
   :root[data-skin="classic"][data-style="qq"] .app:not(.popout) .sidebar {
-    top: 46px;
+    top: 54px;
     left: var(--rail);
     border-radius: 12px 0 0 0;
     overflow: hidden;
@@ -231,7 +233,7 @@
   }
 
   :root[data-skin="classic"][data-style="qq"] .app:not(.popout) .chat-main {
-    padding-top: 46px;
+    padding-top: 54px;
     padding-left: calc(var(--rail) + var(--sidebar));
   }
 
