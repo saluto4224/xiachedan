@@ -678,6 +678,8 @@
 :root[data-skin="classic"][data-style="qq"] .members-panel {
   background: var(--classic-list);
   box-shadow: inset 1px 0 0 var(--qq-border);
+  border-top-right-radius: 12px;
+  overflow: hidden;
 }
 
 /* 宽屏群聊把成员栏停靠在右侧，和桌面 QQ 一样挤压聊天区而不是盖住消息。 */
@@ -691,7 +693,7 @@
     width: 292px;
     height: auto;
     margin: 0;
-    border-radius: 0;
+    border-radius: 0 12px 0 0;
     animation: none;
   }
 }
