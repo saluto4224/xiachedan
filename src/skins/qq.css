@@ -220,6 +220,8 @@
 
   :root[data-skin="classic"][data-style="qq"] .app:not(.popout) .classic-rail {
     top: 46px;
+    border-radius: 12px 0 0 12px;
+    overflow: hidden;
   }
 
   :root[data-skin="classic"][data-style="qq"] .app:not(.popout) .sidebar {
