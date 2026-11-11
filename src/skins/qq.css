@@ -196,18 +196,13 @@
 /* 窄导航：接近 QQ 桌面端的黑色功能栏，当前图标只做轻量高亮。 */
 :root[data-skin="classic"][data-style="qq"] .classic-rail {
   gap: 5px;
+  padding-top: 14px;
   border-right: 1px solid var(--qq-border);
   background: linear-gradient(180deg, var(--qq-rail-strong), var(--qq-rail) 72%);
 }
 
 :root[data-skin="classic"][data-style="qq"] .rail-me {
-  width: 38px;
-  height: 38px;
-  margin-bottom: 18px;
-  overflow: hidden;
-  border: 2px solid rgba(154, 220, 255, .36);
-  border-radius: 50%;
-  box-shadow: 0 4px 14px rgba(0, 0, 0, .22);
+  display: none;
 }
 
 :root[data-skin="classic"][data-style="qq"] .rail-me .avatar,
@@ -306,10 +301,17 @@
 }
 
 :root[data-skin="classic"][data-style="qq"] .classic-plus {
+  width: 40px;
+  height: 40px;
+  border-radius: 12px;
   color: var(--text-1);
-  border-radius: 7px;
   background: var(--classic-field);
   box-shadow: none;
+}
+
+:root[data-skin="classic"][data-style="qq"] .classic-plus svg {
+  color: var(--text-2);
+  stroke-width: 1.7;
 }
 
 :root[data-skin="classic"][data-style="qq"] .folder-bar {

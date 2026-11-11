@@ -40,6 +40,22 @@ const NO_REACTIONS = [];
 const AUTO_DELETE_OPTIONS = [[0, '关闭'], [86400, '1 天'], [604800, '1 周'], [2592000, '1 个月']];
 const autoDeleteLabel = seconds => AUTO_DELETE_OPTIONS.find(([value]) => value === seconds)?.[1] || '';
 
+// QQ 导航使用独立图标：蓝色实心对话气泡和单人头像线稿，避免沿用通讯录、书签组合图标。
+function QQChatGlyph({ size = 22 }) {
+  return <svg width={size} height={size} viewBox="0 0 24 24" aria-hidden="true">
+    <path fill="currentColor" d="M12 2.8C6.6 2.8 2.3 6.5 2.3 11c0 2.5 1.2 4.8 3.3 6.3-.1 1.1-.6 2.2-1.5 3.2 2-.2 3.6-1 4.7-1.8 1 .2 2.1.3 3.2.3 5.4 0 9.7-3.7 9.7-8.1S17.4 2.8 12 2.8Z" />
+    <circle cx="8.6" cy="10.7" r="1.1" fill="#fff" />
+    <circle cx="15.4" cy="10.7" r="1.1" fill="#fff" />
+  </svg>;
+}
+
+function QQContactGlyph({ size = 22, strokeWidth = 1.8 }) {
+  return <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={strokeWidth} strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+    <path d="M8.2 4.3h5.8c1.8 0 3.2 1.4 3.2 3.2v4.2c0 1.8-1.4 3.2-3.2 3.2H9.1c-1.8 0-3.2-1.4-3.2-3.2V5.9c0-.9.4-1.6 1.1-2.1" />
+    <path d="M4.2 20.2c.4-3.8 3-6 7.8-6s7.4 2.2 7.8 6H4.2Z" />
+  </svg>;
+}
+
 // 选中的文字如果都在这条消息的正文里，就作为引用片段（Telegram 式部分引用）。
 function selectedQuote(messageId) {
   const selection = window.getSelection();
@@ -850,8 +866,8 @@ export default function App() {
     {threePane && !popoutRoom && <nav className="classic-rail" aria-label="导航">
       <div className="rail-drag" data-drag-region aria-hidden="true" />
       <button type="button" className="rail-me" aria-label="修改昵称和头像" title={`${state.me.name} · ${state.workspace.name}`} onClick={() => setModal('profile')}><Avatar user={userMap[state.me.id] || state.me} size={36} /></button>
-      {railButton(MessageCircle, '聊天', () => chooseFolderTab('all'), { active: true, badge: unreadCount })}
-      {railButton(BookUser, '通讯录', () => { setContactQuery(''); setModal('members'); })}
+      {railButton(skin === 'qq' ? QQChatGlyph : MessageCircle, '聊天', () => chooseFolderTab('all'), { active: true, badge: unreadCount })}
+      {railButton(skin === 'qq' ? QQContactGlyph : BookUser, '通讯录', () => { setContactQuery(''); setModal('members'); })}
       {railButton(AtSign, '提到我的', () => { setActivity(null); setModal('activity'); })}
       {railButton(Bookmark, '收藏', () => setModal('saved'))}
       <span className="rail-spacer" />
@@ -863,7 +879,7 @@ export default function App() {
       <MobileHome tab={mobileTab} me={{ ...state.me, ...userMap[state.me.id] }} users={state.users} connected={connected} onDirect={directMessage} onAction={setModal} isAdmin={cloud && isAdmin} loggingOut={loggingOut} onLogout={logout} />
       <div className="sidebar-drag" data-drag-region aria-hidden="true" />
       <div className="space-heading" data-drag-region><div className="space-copy"><h1>{state.workspace.name}</h1><p><i className={`status-dot ${connected ? 'online' : ''}`} />{online.length} 人在线</p></div><span className="space-actions">{anyUnread && <IconButton icon={CheckCheck} label="全部标为已读" onClick={markAllRead} />}<IconButton icon={BookUser} label="通讯录" className="contacts-entry" onClick={() => { setContactQuery(''); setModal('members'); }} /><IconButton icon={AtSign} label="提到我的" onClick={() => { setActivity(null); setModal('activity'); }} /><IconButton icon={Bookmark} label="收藏" onClick={() => setModal('saved')} /><IconButton icon={UserPlus} label="邀请同事" onClick={() => setModal('invite')} /></span></div>
-      {threePane ? <div className="classic-search">{searchBox}<IconButton icon={CirclePlus} size={22} label="发起聊天、邀请同事" className="classic-plus" aria-haspopup="menu" onClick={openClassicMenu} /></div> : searchBox}
+      {threePane ? <div className="classic-search">{searchBox}<IconButton icon={skin === 'qq' ? Plus : CirclePlus} size={skin === 'qq' ? 21 : 22} label="发起聊天、邀请同事" className="classic-plus" aria-haspopup="menu" onClick={openClassicMenu} /></div> : searchBox}
       {!compact && <div className="folder-bar"><div className="folder-tabs" role="tablist" aria-label="会话分组">{folderTabs.map(tab => <button type="button" role="tab" key={tab.id} aria-selected={tab.id === tabKey} className={tab.id === tabKey ? 'active' : ''} onClick={() => chooseFolderTab(tab.id)}>
         {tab.label}{tab.unread > 0 && <span className="folder-unread">{tab.unread > 99 ? '99+' : tab.unread}</span>}</button>)}</div>
         {activeFolder && <IconButton icon={PencilLine} label="编辑这个文件夹" size={14} onClick={() => setEditingFolder(activeFolder)} />}
