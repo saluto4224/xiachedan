@@ -22,10 +22,10 @@
   --qq-shell: #1f2024;
   --qq-rail: #222222;
   --qq-rail-strong: #222222;
-  --qq-selected: #30333a;
-  --qq-selected-hover: #35383f;
-  --qq-selected-text: rgba(255, 255, 255, .92);
-  --qq-selected-muted: rgba(255, 255, 255, .52);
+  --qq-selected: #3d3d3d;
+  --qq-selected-hover: #444444;
+  --qq-selected-text: rgba(255, 255, 255, .96);
+  --qq-selected-muted: rgba(255, 255, 255, .6);
   --qq-selected-avatar: rgba(255, 255, 255, .09);
   --qq-selected-avatar-text: #fff;
   --qq-sky: #fff;
@@ -324,7 +324,16 @@
 }
 
 :root[data-skin="classic"][data-style="qq"] .folder-tabs button.active {
-  color: var(--qq-blue);
+  color: #fff;
+  font-weight: 600;
+}
+
+:root[data-skin="classic"][data-style="qq"][data-theme="dark"] .folder-tabs [role="tab"] {
+  color: rgba(255, 255, 255, .72);
+}
+
+:root[data-skin="classic"][data-style="qq"][data-theme="dark"] .folder-tabs [role="tab"].active {
+  color: #fff;
 }
 
 :root[data-skin="classic"][data-style="qq"] .conversation {
