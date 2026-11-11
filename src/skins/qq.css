@@ -231,9 +231,9 @@
 }
 
 :root[data-skin="classic"][data-style="qq"][data-theme="dark"] .rail-button.active {
-  color: #fff;
-  border-radius: 12px;
-  background: #303030;
+  color: #1478d0;
+  border-radius: 8px;
+  background: transparent;
   box-shadow: none;
 }
 
@@ -264,7 +264,7 @@
 :root[data-skin="classic"][data-style="qq"] .rail-badge {
   top: 1px;
   left: 22px;
-  background: var(--classic-red);
+  background: #ff5038;
   box-shadow: 0 0 0 2px var(--qq-rail);
 }
 
@@ -281,8 +281,8 @@
   }
 
   :root[data-skin="classic"][data-style="qq"][data-theme="dark"] .rail-button.active:hover {
-    color: #fff;
-    background: #363636;
+    color: #1478d0;
+    background: rgba(20, 120, 208, .1);
   }
 }
 
