@@ -51,7 +51,7 @@ function QQChatGlyph({ size = 22 }) {
 
 function QQContactGlyph({ size = 22, strokeWidth = 1.8 }) {
   return <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={strokeWidth} strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-    <path d="M8.8 4.1c2.5-.7 4.8.9 5.3 3.2.5 2.6-1.2 4.8-3.7 5.2-2.3.3-4.4-1.3-4.8-3.6-.4-2 .8-4.1 3.2-4.8Z" />
+    <circle cx="12" cy="7.8" r="4" />
     <path d="M4.9 19.4c.6-4 3.1-6.2 7.1-6.2s6.5 2.2 7.1 6.2H4.9Z" />
   </svg>;
 }
