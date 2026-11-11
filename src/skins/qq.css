@@ -4,9 +4,9 @@
 
 :root[data-skin="classic"][data-style="qq"] {
   --rail: 58px;
-  --canvas: #2b2c30;
-  --classic-window: #1f2024;
-  --classic-list: #25262b;
+  --canvas: #222222;
+  --classic-window: #232324;
+  --classic-list: #222222;
   --classic-field: #34363b;
   --classic-search: #1d1e22;
   --classic-box: #202126;
