@@ -230,6 +230,13 @@
   box-shadow: inset 0 0 0 1px rgba(255, 255, 255, .045);
 }
 
+:root[data-skin="classic"][data-style="qq"][data-theme="dark"] .rail-button.active {
+  color: #fff;
+  border-radius: 12px;
+  background: #303030;
+  box-shadow: none;
+}
+
 :root[data-skin="classic"][data-style="qq"] .rail-button.active svg {
   fill: none;
 }
@@ -271,6 +278,11 @@
   :root[data-skin="classic"][data-style="qq"] .rail-button:hover:not(:disabled) {
     color: #fff;
     background: rgba(255, 255, 255, .065);
+  }
+
+  :root[data-skin="classic"][data-style="qq"][data-theme="dark"] .rail-button.active:hover {
+    color: #fff;
+    background: #363636;
   }
 }
 
