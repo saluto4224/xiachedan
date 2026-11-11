@@ -154,6 +154,10 @@
     flex: none;
   }
 
+  :root[data-skin="classic"][data-style="qq"][data-theme="light"] .qq-brand-mark {
+    color: #000000;
+  }
+
   :root[data-skin="classic"][data-style="qq"] .qq-brand-mark svg {
     width: 18px;
     height: 18px;
@@ -282,8 +286,9 @@
 }
 
 :root[data-skin="classic"][data-style="qq"][data-theme="light"] .rail-button.active {
-  color: var(--qq-sky);
-  background: #edf0f3;
+  color: var(--classic-rail-icon);
+  border-radius: 0;
+  background: #ebebeb;
   box-shadow: none;
 }
 
