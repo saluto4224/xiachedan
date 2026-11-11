@@ -335,6 +335,16 @@
     background: rgba(255, 255, 255, .065);
   }
 
+  :root[data-skin="classic"][data-style="qq"][data-theme="light"] .rail-button:hover:not(:disabled) {
+    color: var(--classic-rail-icon);
+    background: #ebebeb;
+  }
+
+  :root[data-skin="classic"][data-style="qq"][data-theme="light"] .rail-button.active:hover:not(:disabled) {
+    color: #0099ff;
+    background: #ebebeb;
+  }
+
   :root[data-skin="classic"][data-style="qq"][data-theme="dark"] .rail-button.active:hover {
     color: #0099ff;
     background: rgba(0, 153, 255, .1);
