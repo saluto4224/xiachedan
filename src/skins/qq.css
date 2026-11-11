@@ -70,7 +70,7 @@
   --classic-rail-icon: #000000;
   --classic-red: #ff5a61;
   --classic-panel-shadow: -12px 0 28px rgba(27, 33, 42, .08);
-  --qq-shell: #f4f5f7;
+  --qq-shell: #ebebeb;
   --qq-rail: #f7f8fa;
   --qq-rail-strong: #f7f8fa;
   --qq-topbar: #cccccc;
@@ -219,13 +219,13 @@
   }
 
   :root[data-skin="classic"][data-style="qq"] .app:not(.popout) .classic-rail {
-    top: 54px;
+    top: 46px;
     border-top-left-radius: 12px;
     overflow: hidden;
   }
 
   :root[data-skin="classic"][data-style="qq"] .app:not(.popout) .sidebar {
-    top: 54px;
+    top: 46px;
     left: var(--rail);
     border-radius: 12px 0 0 0;
     overflow: hidden;
@@ -233,7 +233,7 @@
   }
 
   :root[data-skin="classic"][data-style="qq"] .app:not(.popout) .chat-main {
-    padding-top: 54px;
+    padding-top: 46px;
     padding-left: calc(var(--rail) + var(--sidebar));
   }
 
