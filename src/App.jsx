@@ -43,9 +43,9 @@ const autoDeleteLabel = seconds => AUTO_DELETE_OPTIONS.find(([value]) => value =
 // QQ 导航使用独立图标：蓝色实心对话气泡和单人头像线稿，避免沿用通讯录、书签组合图标。
 function QQChatGlyph({ size = 22 }) {
   return <svg width={size} height={size} viewBox="0 0 24 24" aria-hidden="true">
-    <path fill="currentColor" d="M12 2.8C6.6 2.8 2.3 6.5 2.3 11c0 2.5 1.2 4.8 3.3 6.3-.1 1.1-.6 2.2-1.5 3.2 2-.2 3.6-1 4.7-1.8 1 .2 2.1.3 3.2.3 5.4 0 9.7-3.7 9.7-8.1S17.4 2.8 12 2.8Z" />
-    <circle cx="8.6" cy="10.7" r="1.1" fill="#fff" />
-    <circle cx="15.4" cy="10.7" r="1.1" fill="#fff" />
+    <path className="qq-chat-body" fill="currentColor" d="M12 2.8C6.6 2.8 2.3 6.5 2.3 11c0 2.5 1.2 4.8 3.3 6.3-.1 1.1-.6 2.2-1.5 3.2 2-.2 3.6-1 4.7-1.8 1 .2 2.1.3 3.2.3 5.4 0 9.7-3.7 9.7-8.1S17.4 2.8 12 2.8Z" />
+    <circle className="qq-chat-dot" cx="8.6" cy="10.7" r="1.1" fill="#fff" />
+    <circle className="qq-chat-dot" cx="15.4" cy="10.7" r="1.1" fill="#fff" />
   </svg>;
 }
 
