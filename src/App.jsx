@@ -56,6 +56,20 @@ function QQContactGlyph({ size = 22, strokeWidth = 1.8 }) {
   </svg>;
 }
 
+function ShrimpBrandGlyph({ size = 18 }) {
+  return <svg width={size} height={size} viewBox="0 0 100 100" aria-hidden="true">
+    <g fill="currentColor">
+      <path d="M51 30C56 22 69 24 77 32C82 36 85 43 85 48H68C67 42 63 40 58 41C49 43 44 35 51 30Z" />
+      <path d="M86 52C87 61 83 69 78 75L65 64C67 61 69 57 68 52H86Z" />
+      <path d="M74 78C67 85 58 88 49 88V72C54 72 58 70 62 67L74 78Z" />
+      <path d="M44 88C33 86 25 81 20 73L32 62C35 67 40 71 44 71V88Z" />
+      <path d="M19 69C13 65 9 55 13 48C20 48 28 52 29 58C32 50 38 48 43 50C45 59 38 67 31 70L19 69Z" />
+    </g>
+    <path d="M61 29C53 13 37 13 28 23M66 27C64 9 44 3 35 10M52 31L39 27" fill="none" stroke="currentColor" strokeWidth="3.4" strokeLinecap="round" />
+    <circle className="qq-brand-eye" cx="68" cy="33" r="2.6" />
+  </svg>;
+}
+
 // 选中的文字如果都在这条消息的正文里，就作为引用片段（Telegram 式部分引用）。
 function selectedQuote(messageId) {
   const selection = window.getSelection();
@@ -862,7 +876,7 @@ export default function App() {
     else messageGroups.push({ newDay, messages: [message], timeLabel: threePane && (newDay || message.createdAt - previous.createdAt >= 5 * 60000) ? classicTime(message.createdAt) : null });
   }
   return <>{appLock.locked && <LockScreen appLock={appLock} onLogout={logout} loggingOut={loggingOut} />}<div inert={appLock.locked} className={`app ${popoutRoom ? 'popout' : ''} ${privateMode ? 'privacy-on' : ''} ${nativeTitlebar ? 'native' : ''} ${mobileChat ? 'show-chat' : ''} ${compact ? 'compact-sidebar' : ''}`} style={{ '--sidebar': `${sidebarWidth}px` }} data-screen-label="虾扯蛋聊天空间">
-    {skin === 'qq' && !popoutRoom && <header className="qq-app-bar" data-drag-region><button type="button" className="qq-self" aria-label="修改昵称和头像" title="修改昵称和头像" onClick={() => setModal('profile')}><Avatar user={userMap[state.me.id] || state.me} size={32} online={connected} /><span><b>{userMap[state.me.id]?.name || state.me.name}</b><small>{activeStatus(userMap[state.me.id]) ? `${activeStatus(userMap[state.me.id]).emoji} ${activeStatus(userMap[state.me.id]).text}` : userMap[state.me.id]?.bio || (connected ? '在线' : '正在连接…')}</small></span></button></header>}
+    {skin === 'qq' && !popoutRoom && <header className="qq-app-bar" data-drag-region><div className="qq-brand"><span className="qq-brand-mark"><ShrimpBrandGlyph /></span><b>虾扯蛋</b></div><button type="button" className="qq-self" aria-label="修改昵称和头像" title="修改昵称和头像" onClick={() => setModal('profile')}><Avatar user={userMap[state.me.id] || state.me} size={32} online={connected} /><span><b>{userMap[state.me.id]?.name || state.me.name}</b><small>{activeStatus(userMap[state.me.id]) ? `${activeStatus(userMap[state.me.id]).emoji} ${activeStatus(userMap[state.me.id]).text}` : userMap[state.me.id]?.bio || (connected ? '在线' : '正在连接…')}</small></span></button></header>}
     {threePane && !popoutRoom && <nav className="classic-rail" aria-label="导航">
       <div className="rail-drag" data-drag-region aria-hidden="true" />
       <button type="button" className="rail-me" aria-label="修改昵称和头像" title={`${state.me.name} · ${state.workspace.name}`} onClick={() => setModal('profile')}><Avatar user={userMap[state.me.id] || state.me} size={36} /></button>
