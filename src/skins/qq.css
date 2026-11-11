@@ -129,7 +129,7 @@
     inset: 0 0 auto;
     display: flex;
     align-items: center;
-    justify-content: space-between;
+    justify-content: flex-start;
     height: 46px;
     padding: 0 14px 0 12px;
     background: var(--qq-topbar);
@@ -178,7 +178,7 @@
     gap: 9px;
     height: 40px;
     padding: 0 8px 0 2px;
-    margin-left: auto;
+    margin-left: 14px;
     border-radius: 6px;
     text-align: left;
   }
