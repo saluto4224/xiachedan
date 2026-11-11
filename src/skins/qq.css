@@ -54,11 +54,11 @@
 }
 
 :root[data-skin="classic"][data-style="qq"][data-theme="light"] {
-  --canvas: #f4f5f7;
+  --canvas: #f5f5f5;
   --classic-window: #e7e8eb;
   --classic-list: #ffffff;
   --classic-field: #eef0f3;
-  --classic-search: #ffffff;
+  --classic-search: #ebebeb;
   --classic-box: #ffffff;
   --classic-box-line: rgba(24, 29, 36, .1);
   --classic-box-focus: rgba(0, 132, 255, .58);
@@ -632,6 +632,10 @@
   border-radius: 6px;
   background: var(--classic-field);
   color: var(--text-3);
+}
+
+:root[data-skin="classic"][data-style="qq"][data-theme="light"] .qq-member-search {
+  background: #ebebeb;
 }
 
 :root[data-skin="classic"][data-style="qq"][data-theme="dark"] :is(.composer-area, .qq-member-search) {

@@ -62,7 +62,7 @@ export function applyAppearance({ accent, fontSize, wallpaper }) {
   const qq = document.documentElement.dataset.style === 'qq';
   for (const name of ['--bubble-out-text', '--out-text-2', '--out-fill', '--out-fill-2', '--out-line']) root.removeProperty(name);
   if (qq) {
-    const bubble = lightTheme ? mix(outBase, [255, 255, 255], .72) : mix(outBase, toRgb('#202126'), .64);
+    const bubble = lightTheme ? toRgb('#ccebff') : mix(outBase, toRgb('#202126'), .64);
     root.setProperty('--bubble-out', toHex(bubble));
     root.setProperty('--bubble-out-text', lightTheme ? '#142331' : '#ffffff');
     root.setProperty('--out-text-2', lightTheme ? 'rgba(20, 35, 49, .66)' : 'rgba(255, 255, 255, .78)');
