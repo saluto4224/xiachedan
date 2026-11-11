@@ -686,6 +686,20 @@
   overflow: hidden;
 }
 
+:root[data-skin="classic"][data-style="qq"][data-theme="dark"] .members-panel::before {
+  content: "";
+  position: absolute;
+  z-index: 10;
+  top: 0;
+  right: 0;
+  width: 12px;
+  height: 12px;
+  background: var(--qq-topbar);
+  -webkit-mask: radial-gradient(circle at 0 100%, transparent 11.5px, #000 12px);
+  mask: radial-gradient(circle at 0 100%, transparent 11.5px, #000 12px);
+  pointer-events: none;
+}
+
 /* 宽屏群聊把成员栏停靠在右侧，和桌面 QQ 一样挤压聊天区而不是盖住消息。 */
 @media (min-width: 1100px) {
   :root[data-skin="classic"][data-style="qq"] .members-panel {
