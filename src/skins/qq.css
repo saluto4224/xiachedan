@@ -277,6 +277,7 @@
 /* 会话列表：高密度头像行、灰色选中态和克制的搜索焦点。 */
 :root[data-skin="classic"][data-style="qq"] .sidebar {
   background: var(--classic-list);
+  border-right: 1px solid var(--qq-border);
 }
 
 :root[data-skin="classic"][data-style="qq"] .space-heading {
@@ -522,7 +523,13 @@
 }
 
 :root[data-skin="classic"][data-style="qq"] .composer-row {
-  min-height: 88px;
+  grid-template-columns: 32px 32px 1fr auto;
+  grid-template-rows: 32px minmax(44px, 1fr) 32px;
+  grid-template-areas:
+    "emoji attach . ."
+    "input input input input"
+    ". . . send";
+  min-height: 124px;
   padding: 8px 10px;
   border-radius: 7px;
   background: var(--canvas);
@@ -534,16 +541,29 @@
 }
 
 :root[data-skin="classic"][data-style="qq"] .composer textarea {
+  grid-area: input;
   color: var(--text-1);
   caret-color: var(--qq-blue);
 }
 
 :root[data-skin="classic"][data-style="qq"] .send-button {
+  grid-area: send;
   height: 32px;
   padding: 0 24px;
+  justify-self: end;
   border-radius: 5px;
   background: #0b8ff1;
   box-shadow: none;
+}
+
+:root[data-skin="classic"][data-style="qq"] .emoji-button {
+  grid-area: emoji;
+  align-self: center;
+}
+
+:root[data-skin="classic"][data-style="qq"] .attach-button {
+  grid-area: attach;
+  align-self: center;
 }
 
 :root[data-skin="classic"][data-style="qq"] .send-button:disabled {
@@ -831,6 +851,18 @@
   :root[data-skin="classic"][data-style="qq"] .composer-area {
     background: var(--classic-bar);
     box-shadow: inset 0 1px 0 var(--qq-border);
+  }
+
+  :root[data-skin="classic"][data-style="qq"] .composer-row {
+    grid-template-columns: 1fr 40px 40px auto;
+    grid-template-rows: 40px 40px;
+    grid-template-areas:
+      "input input input input"
+      "emoji attach . send";
+    min-height: 88px;
+    padding: 4px 0;
+    background: transparent;
+    box-shadow: none;
   }
 
   :root[data-skin="classic"][data-style="qq"] .composer textarea {
