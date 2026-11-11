@@ -114,8 +114,12 @@
 }
 
 :root[data-skin="classic"][data-style="qq"] .conversation-body {
-  background: var(--canvas);
+  background: var(--qq-topbar);
   box-shadow: none;
+}
+
+:root[data-skin="classic"][data-style="qq"] .chat-column {
+  background: var(--wallpaper, var(--canvas));
 }
 
 :root[data-skin="classic"][data-style="qq"] .app.native {
