@@ -67,7 +67,7 @@
   --classic-hover: rgba(24, 29, 36, .045);
   --classic-active: #eceef1;
   --classic-pinned: rgba(24, 29, 36, .028);
-  --classic-rail-icon: #3a3f47;
+  --classic-rail-icon: #000000;
   --classic-red: #ff5a61;
   --classic-panel-shadow: -12px 0 28px rgba(27, 33, 42, .08);
   --qq-shell: #f4f5f7;
@@ -287,7 +287,7 @@
 
 :root[data-skin="classic"][data-style="qq"][data-theme="light"] .rail-button.active {
   color: var(--classic-rail-icon);
-  border-radius: 0;
+  border-radius: 12px;
   background: #ebebeb;
   box-shadow: none;
 }
