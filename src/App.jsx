@@ -548,8 +548,8 @@ export default function App() {
 
   function composerBounds() {
     const available = chatColumn.current?.clientHeight || 720;
-    const min = Math.max(120, Math.round(available * .25));
-    const max = Math.max(min, Math.round(available * .75));
+    const min = Math.max(120, Math.round(available * .2));
+    const max = Math.max(min, Math.round(available * .5));
     return { min, max };
   }
 

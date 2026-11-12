@@ -619,6 +619,7 @@
   flex: 0 0 7px;
   height: 7px;
   margin: 0 14px;
+  background: transparent;
   cursor: row-resize;
   touch-action: none;
 }
@@ -631,13 +632,12 @@
   right: 0;
   height: 1px;
   background: var(--qq-border);
-  transition: background-color 120ms var(--ease-out), box-shadow 120ms var(--ease-out);
+  transition: background-color 120ms var(--ease-out);
 }
 
 :root[data-skin="classic"][data-style="qq"] .qq-composer-resizer:hover::before,
 :root[data-skin="classic"][data-style="qq"] .qq-composer-resizer:focus-visible::before {
   background: var(--qq-blue);
-  box-shadow: 0 0 0 1px var(--qq-blue);
 }
 
 :root[data-skin="classic"][data-style="qq"] .qq-composer-resizer:focus-visible {
@@ -650,7 +650,7 @@
   min-height: 0;
   padding: 4px 14px 12px;
   background: var(--canvas);
-  box-shadow: inset 0 1px 0 var(--qq-border);
+  box-shadow: none;
   overflow: hidden;
 }
 
@@ -664,7 +664,8 @@
     "input input input input"
     ". . . send";
   min-height: 0;
-  padding: 6px 0;
+  padding: 6px 0 0;
+  row-gap: 0;
   border-radius: 0;
   background: transparent;
   box-shadow: none;
@@ -679,6 +680,7 @@
   min-height: 0;
   max-height: none;
   height: 100%;
+  padding: 1px 2px 0;
   color: var(--text-1);
   caret-color: var(--qq-blue);
   resize: none;
