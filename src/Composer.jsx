@@ -264,7 +264,7 @@ export default function Composer({ room, connected, onQueue, notify, reply, repl
   const attachMenuPosition = (rect, itemCount) => {
     if (skin === 'qq') {
       const divider = document.querySelector('.qq-composer-resizer')?.getBoundingClientRect();
-      return { above: (divider?.bottom ?? rect.top) - 8 };
+      return { above: (divider?.top ?? rect.top) - 8 };
     }
     return { y: rect.top - 16 - itemCount * 36 };
   };
