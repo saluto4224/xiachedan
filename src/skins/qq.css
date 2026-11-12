@@ -770,10 +770,39 @@
 }
 
 :root[data-skin="classic"][data-style="qq"] .qq-reply-mention {
-  padding-left: 1px;
+  display: inline-flex;
+  align-items: center;
+  align-self: flex-start;
+  gap: 3px;
+  width: auto;
+  padding: 0 1px;
   color: #1688d4;
   font-size: 14px;
   line-height: 20px;
+}
+
+:root[data-skin="classic"][data-style="qq"] .qq-reply-mention-remove {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  color: #858b92;
+  background: #e1e3e5;
+}
+
+:root[data-skin="classic"][data-style="qq"] .qq-reply-mention-add {
+  color: var(--text-3);
+  font-size: 12px;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  :root[data-skin="classic"][data-style="qq"] .qq-reply-mention-add:hover {
+    color: #1688d4;
+    text-decoration: underline;
+    text-underline-offset: 2px;
+  }
 }
 
 :root[data-skin="classic"][data-style="qq"][data-theme="dark"] .qq-reply-card {
@@ -791,6 +820,11 @@
 
 :root[data-skin="classic"][data-style="qq"][data-theme="dark"] .qq-reply-mention {
   color: #55b7f5;
+}
+
+:root[data-skin="classic"][data-style="qq"][data-theme="dark"] .qq-reply-mention-remove {
+  color: rgba(255, 255, 255, .58);
+  background: rgba(255, 255, 255, .1);
 }
 
 :root[data-skin="classic"][data-style="qq"] .send-button:disabled {

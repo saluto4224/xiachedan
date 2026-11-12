@@ -13,7 +13,7 @@ import ImageEditor from './ImageEditor';
 
 const empty = { text: '', files: [], mentions: [] };
 const EVERYONE = { id: '*', name: '所有人' };
-export default function Composer({ room, connected, onQueue, notify, reply, replyAuthor, onCancelReply, privateMode, skin, members = [], canMentionAll = false, onTyping, editing, onCancelEdit, onEdited, onEditLast, onCreatePoll, onSchedule, notice, sendKey = 'enter', onDraft, injectDraft, injectShare, placeholder, phrases = [] }) {
+export default function Composer({ room, connected, onQueue, notify, reply, replyAuthor, replyMentionName, onCancelReply, privateMode, skin, members = [], canMentionAll = false, onTyping, editing, onCancelEdit, onEdited, onEditLast, onCreatePoll, onSchedule, notice, sendKey = 'enter', onDraft, injectDraft, injectShare, placeholder, phrases = [] }) {
   const typedAt = useRef(0);
   const [attachMenu, setAttachMenu] = useState(null);
   const [picker, setPicker] = useState(null);
@@ -25,6 +25,7 @@ export default function Composer({ room, connected, onQueue, notify, reply, repl
   // 发图默认压缩大图，勾选「原图」时按原文件上传；选择记在本机。
   const [sendOriginal, setSendOriginal] = useState(() => localStorage.getItem('linliao.sendOriginal') === '1');
   const [editingImage, setEditingImage] = useState(null);
+  const [replyMentionRemoved, setReplyMentionRemoved] = useState(null);
   // 编辑时输入框临时换成这条消息的正文，草稿原样保留，退出编辑后恢复。
   const [editText, setEditText] = useState('');
   const input = useRef();
@@ -199,13 +200,17 @@ export default function Composer({ room, connected, onQueue, notify, reply, repl
     const roomId = room.id;
     const snapshot = draft;
     const replyTo = reply?.id || null;
+    const includeReplyMention = Boolean(replyTo && replyMentionName && reply.senderId && replyMentionRemoved !== reply.id);
+    const mentionPrefix = includeReplyMention ? `@${replyMentionName} ` : '';
+    const outgoingText = mentionPrefix && !snapshot.text.includes(`@${replyMentionName}`) ? mentionPrefix + snapshot.text : snapshot.text;
     // 只保留正文里仍写着「@名字」的提及。
     const nameOf = id => id === '*' ? EVERYONE.name : members.find(user => user.id === id)?.name;
-    const mentions = (snapshot.mentions || []).filter(id => nameOf(id) && snapshot.text.includes(`@${nameOf(id)}`));
+    const mentions = (snapshot.mentions || []).filter(id => nameOf(id) && outgoingText.includes(`@${nameOf(id)}`));
+    if (includeReplyMention && !mentions.includes(reply.senderId)) mentions.push(reply.senderId);
     textarea.current?.focus({ preventScroll: true });
     // 交给发件箱发送，输入框立即清空；失败的消息留在会话底部，可重试或删除。
-    onQueue({ roomId, text: snapshot.text, attachmentIds: snapshot.files.map(file => file.attachment.id), clientId: uid(), ...(replyTo ? { replyTo, ...(reply.quote ? { replyQuote: reply.quote } : {}) } : {}), ...(mentions.length ? { mentions } : {}) },
-      { text: snapshot.text, files: snapshot.files.map(file => file.file.name) });
+    onQueue({ roomId, text: outgoingText, attachmentIds: snapshot.files.map(file => file.attachment.id), clientId: uid(), ...(replyTo ? { replyTo, ...(reply.quote ? { replyQuote: reply.quote } : {}) } : {}), ...(mentions.length ? { mentions } : {}) },
+      { text: outgoingText, files: snapshot.files.map(file => file.file.name) });
     if (replyTo) onCancelReply?.();
     for (const file of snapshot.files) URL.revokeObjectURL(file.url);
     update(roomId, () => empty);
@@ -226,7 +231,10 @@ export default function Composer({ room, connected, onQueue, notify, reply, repl
   // 新消息断网时也能发，先进发件箱排队；编辑仍需在线。
   const ready = !sending && (editing ? connected : (draft.text.trim() || draft.files.length) && draft.files.every(file => file.attachment));
   // 选择回复时把焦点交给输入框。
-  useEffect(() => { if (reply) textarea.current?.focus({ preventScroll: true }); }, [reply?.id]);
+  useEffect(() => {
+    if (reply) textarea.current?.focus({ preventScroll: true });
+    else setReplyMentionRemoved(null);
+  }, [reply?.id]);
   useEffect(() => {
     if (!editing) return;
     setEditText(editing.text);
@@ -284,7 +292,9 @@ export default function Composer({ room, connected, onQueue, notify, reply, repl
     <div className="composer-row">
     {reply && !editing && skin === 'qq' && <div className="reply-bar qq-reply-bar" role="status">
       <div className="qq-reply-card"><span className="reply-copy"><b>{replyAuthor}：</b><PrivatePreview privateMode={privateMode}>{reply.quote ? `“${reply.quote}”` : previewText(reply)}</PrivatePreview></span><IconButton icon={X} label="取消回复" size={13} onClick={onCancelReply} /></div>
-      <span className="qq-reply-mention">@{replyAuthor}</span>
+      {replyMentionName && (replyMentionRemoved === reply.id
+        ? <button type="button" className="qq-reply-mention qq-reply-mention-add" onClick={() => setReplyMentionRemoved(null)}>@ 提醒 {replyAuthor}</button>
+        : <span className="qq-reply-mention">@{replyAuthor}<button type="button" className="qq-reply-mention-remove" aria-label={`不再提醒${replyAuthor}`} title="不 @ 提醒对方" onClick={() => setReplyMentionRemoved(reply.id)}><X size={11} /></button></span>)}
     </div>}
     {/* 附件统一收进回形针菜单：图片或视频、文件 */}
     <button type="button" className="round-button glass attach-button" aria-label="添加附件" title="添加附件（也可拖入或粘贴）" aria-haspopup="menu" aria-expanded={Boolean(attachMenu)} disabled={sending || !connected}
