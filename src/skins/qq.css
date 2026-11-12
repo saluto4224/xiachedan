@@ -650,7 +650,8 @@
   padding: 0 24px;
   justify-self: end;
   border-radius: 5px;
-  background: #0b8ff1;
+  background: #0066cc;
+  color: #ffffff;
   box-shadow: none;
 }
 
@@ -747,8 +748,10 @@
 }
 
 :root[data-skin="classic"][data-style="qq"] .send-button:disabled {
-  background: var(--classic-field);
+  background: #0066cc;
+  color: #408cd9;
   box-shadow: none;
+  opacity: 1;
 }
 
 :root[data-skin="classic"][data-style="qq"] :is(.emoji-button, .attach-button) {
