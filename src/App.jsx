@@ -40,6 +40,36 @@ const NO_REACTIONS = [];
 const AUTO_DELETE_OPTIONS = [[0, '关闭'], [86400, '1 天'], [604800, '1 周'], [2592000, '1 个月']];
 const autoDeleteLabel = seconds => AUTO_DELETE_OPTIONS.find(([value]) => value === seconds)?.[1] || '';
 
+// QQ 导航使用独立图标：蓝色实心对话气泡和单人头像线稿，避免沿用通讯录、书签组合图标。
+function QQChatGlyph({ size = 22 }) {
+  return <svg width={size} height={size} viewBox="0 0 24 24" aria-hidden="true">
+    <path className="qq-chat-body" fill="currentColor" d="M12 2.8C6.6 2.8 2.3 6.5 2.3 11c0 2.5 1.2 4.8 3.3 6.3-.1 1.1-.6 2.2-1.5 3.2 2-.2 3.6-1 4.7-1.8 1 .2 2.1.3 3.2.3 5.4 0 9.7-3.7 9.7-8.1S17.4 2.8 12 2.8Z" />
+    <circle className="qq-chat-dot" cx="8.6" cy="10.7" r="1.1" fill="#fff" />
+    <circle className="qq-chat-dot" cx="15.4" cy="10.7" r="1.1" fill="#fff" />
+  </svg>;
+}
+
+function QQContactGlyph({ size = 22, strokeWidth = 1.8 }) {
+  return <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={strokeWidth} strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+    <circle cx="12" cy="7.8" r="4" />
+    <path d="M4.9 19.4c.6-4 3.1-6.2 7.1-6.2s6.5 2.2 7.1 6.2H4.9Z" />
+  </svg>;
+}
+
+function ShrimpBrandGlyph({ size = 18 }) {
+  return <svg width={size} height={size} viewBox="0 0 100 100" aria-hidden="true">
+    <g fill="currentColor">
+      <path d="M51 30C56 22 69 24 77 32C82 36 85 43 85 48H68C67 42 63 40 58 41C49 43 44 35 51 30Z" />
+      <path d="M86 52C87 61 83 69 78 75L65 64C67 61 69 57 68 52H86Z" />
+      <path d="M74 78C67 85 58 88 49 88V72C54 72 58 70 62 67L74 78Z" />
+      <path d="M44 88C33 86 25 81 20 73L32 62C35 67 40 71 44 71V88Z" />
+      <path d="M19 69C13 65 9 55 13 48C20 48 28 52 29 58C32 50 38 48 43 50C45 59 38 67 31 70L19 69Z" />
+    </g>
+    <path d="M61 29C53 13 37 13 28 23M66 27C64 9 44 3 35 10M52 31L39 27" fill="none" stroke="currentColor" strokeWidth="3.4" strokeLinecap="round" />
+    <circle className="qq-brand-eye" cx="68" cy="33" r="2.6" />
+  </svg>;
+}
+
 // 选中的文字如果都在这条消息的正文里，就作为引用片段（Telegram 式部分引用）。
 function selectedQuote(messageId) {
   const selection = window.getSelection();
@@ -121,6 +151,9 @@ export default function App() {
   // 侧栏宽度可拖动调整并记住；拖到很窄时收成只显示头像的窄栏。
   const [sidebarWidth, setSidebarWidth] = useState(() => { const value = readStorage('linliao.sidebarWidth', 300); return value === 76 || (value >= 220 && value <= 440) ? value : 300; });
   const resizing = useRef(null);
+  const [composerHeight, setComposerHeight] = useState(() => { const value = Number(readStorage('linliao.qqComposerHeight', 190)); return Number.isFinite(value) && value >= 120 && value <= 1200 ? value : 190; });
+  const composerResize = useRef(null);
+  const chatColumn = useRef(null);
   const [dismissedNotices, setDismissedNotices] = useState(() => readStorage('linliao.announcements', {}));
   const [readDetail, setReadDetail] = useState(null);
   const [profileCard, setProfileCard] = useState(null);
@@ -141,6 +174,7 @@ export default function App() {
   const [removing, setRemoving] = useState(null);
   const [showMembers, setShowMembers] = useState(false);
   const [panelView, setPanelView] = useState('members');
+  const [memberQuery, setMemberQuery] = useState('');
   const [preview, setPreview] = useState(null);
   // 从合并转发的聊天记录里看图时，左右切换的范围是那份记录里的图片。
   const [previewImages, setPreviewImages] = useState(null);
@@ -152,8 +186,8 @@ export default function App() {
   const [mobileTab, setMobileTab] = useState('chats');
   const [theme, setTheme] = useTheme();
   const [skin, setSkin] = useSkin();
-  // 经典风格：熟悉的三栏聊天布局（左侧导航栏、按时间排的会话列表、每条消息带头像、居中时间）。
-  const classic = skin === 'classic';
+  // 经典和 QQ 风格：熟悉的三栏聊天布局（左侧导航栏、按时间排的会话列表、每条消息带头像、居中时间）。
+  const threePane = skin === 'classic' || skin === 'qq';
   const [appearance, setAppearance] = useAppearance(skin);
   const [chatPrefs, setChatPrefs] = useChatPrefs();
   const [update, setUpdate] = useState(null);
@@ -179,6 +213,8 @@ export default function App() {
   // 面板自己、打开面板的按钮，以及从面板里弹出的对话框、菜单、资料卡不算「外面」。
   useEffect(() => {
     if (!showMembers) return;
+    // QQ 宽屏的成员栏是固定侧栏，点击聊天区不应把它当成浮层关掉。
+    if (skin === 'qq' && matchMedia('(min-width: 1100px)').matches) return;
     const dismiss = event => {
       const target = event.target;
       if (!(target instanceof Element) || target.closest('.members-panel, .member-count, dialog, [role="menu"], .profile-card, .read-detail')) return;
@@ -198,7 +234,7 @@ export default function App() {
     };
     window.addEventListener('linliao:back', back);
     return () => window.removeEventListener('linliao:back', back);
-  }, [contextMenu, profileCard, readDetail, reactingTo, selection, showMembers, mobileChat, mobileTab]);
+  }, [contextMenu, profileCard, readDetail, reactingTo, selection, showMembers, mobileChat, mobileTab, skin]);
   const { privateMode, privacyRef, changePrivacy, windowActive } = useDesktopBridge({ notify, onPendingRoom: openRoom,
     onOpenRoom: roomId => { openRoom(roomId); setModal(null); setSearch(''); } });
   // 应用锁：锁着时整个界面不可操作，通知也按隐私模式只显示「新消息」。
@@ -217,6 +253,14 @@ export default function App() {
     syncHistory, receive, markMessageRead, loadOlder: fetchOlder, loadThrough, updateMe, applyReactions, applyEdit, typing, sendTyping, pinsVersion, savedVersion, applyPoll, threadTick, applyNote, applyFolders, applyKeywords, applyPhrases, hideLocally } = useChatSession({ selected, notify, privacyRef: noticePrivacy, mutedRef: mutedRooms, onHistoryChanged });
   const { rooms: conversations, scope: conversationScope, restore: restoreConversation, act: conversationAction, reorder: reorderPinned } =
     useConversations({ state, spaceId: bootstrap?.spaceId, selected, onSelect: setSelected, notify });
+  const selectedConversationKind = conversations.find(chat => chat.id === selected)?.kind;
+  // QQ 宽屏默认展示右侧群成员栏，贴近桌面 QQ 的群聊布局。
+  useEffect(() => {
+    if (skin !== 'qq' || selectedConversationKind === 'direct' || !selectedConversationKind || !matchMedia('(min-width: 1100px)').matches) return;
+    setPanelView('members');
+    setShowMembers(true);
+  }, [skin, selected, selectedConversationKind]);
+  useEffect(() => setMemberQuery(''), [selected]);
   const pinnedDrag = usePinnedDrag(ids => reorderPinned(ids, conversationScope));
   const outbox = useOutbox({ storageKey: conversationScope && `linliao.outbox:${conversationScope}`, connected: connected && !loggingOut, onSent: receive });
   mutedRooms.current = new Set(conversations.filter(room => room.muted).map(room => room.id));
@@ -446,7 +490,8 @@ export default function App() {
   // 资料卡贴着头像弹出：头像在右半边时卡片放在左侧。
   function openProfile(user, element) {
     const rect = element.getBoundingClientRect();
-    setProfileCard({ userId: user.id, x: rect.left > innerWidth / 2 ? rect.left - 268 : rect.right + 8, y: rect.top });
+    const cardWidth = skin === 'qq' ? 360 : 268;
+    setProfileCard({ userId: user.id, x: rect.left > innerWidth / 2 ? rect.left - cardWidth - 8 : rect.right + 8, y: rect.top });
   }
   // 群聊头像和成员列表：单击看资料卡，双击直接发起私聊；单击稍等一下，免得双击时卡片闪一下。键盘回车立即打开。
   // 私聊里已经在和对方说话：单击只看资料卡，不等待双击。
@@ -499,6 +544,20 @@ export default function App() {
     if (!restoreConversation(id)) return;
     if (conversations.find(room => room.id === id)?.markedUnread) conversationAction('mark-read', id, conversationScope);
     setSelected(id); setMobileChat(true); setReadDetail(null); setContextMenu(null); setPanelView('members'); setShowMembers(false);
+  }
+
+  function composerBounds() {
+    const available = chatColumn.current?.clientHeight || 720;
+    const min = Math.max(120, Math.round(available * .2));
+    const max = Math.max(min, Math.round(available * .5));
+    return { min, max };
+  }
+
+  function setComposerSize(value) {
+    const { min, max } = composerBounds();
+    const next = Math.round(Math.min(max, Math.max(min, value)));
+    setComposerHeight(next);
+    localStorage.setItem('linliao.qqComposerHeight', JSON.stringify(next));
   }
   function showContextMenu(event, options, items, label) {
     event.preventDefault(); event.stopPropagation();
@@ -675,6 +734,8 @@ export default function App() {
   const rooms = conversations.map(room => ({ ...room, name: roomName(room) }));
   const room = rooms.find(room => room.id === selected && !room.hidden);
   const groupMembers = !room ? [] : room.kind === 'public' ? state.users.filter(user => !user.removed) : state.users.filter(user => !user.removed && room.members.includes(user.id));
+  const memberNeedle = memberQuery.trim().toLowerCase();
+  const visiblePanelMembers = memberNeedle ? groupMembers.filter(user => [user.name, user.department, user.bio].some(value => value?.toLowerCase().includes(memberNeedle))) : groupMembers;
   const online = state.users.filter(user => !user.removed && user.online);
   latest.current = { messageMenu, userMap, displayUser, jumpToMessage, toggleReaction, votePoll, closePoll, openThread, markMessageRead, openProfile, selectMessage,
     joinGroup: async ({ roomId, token }) => {
@@ -692,9 +753,9 @@ export default function App() {
   const unreadMentions = currentMessages.filter(message => message.senderId !== state.me.id && !message.recalledAt && message.mentions?.some(id => id === state.me.id || id === '*')
     && Array.isArray(message.readBy) && !message.readBy.includes(state.me.id));
   // 群聊默认显示自己的头像、不显示自己的名字；私聊默认双方都不显示。都可以在设置里改。
-  const showAvatar = mine => classic || (room?.kind === 'direct' ? chatPrefs.showBothInDirect : !mine || chatPrefs.showSelfInGroups);
+  const showAvatar = mine => threePane || (room?.kind === 'direct' ? chatPrefs.showBothInDirect : !mine || chatPrefs.showSelfInGroups);
   // 经典风格固定：私聊不显示名字，群聊只显示别人的名字。
-  const showNameOf = mine => classic ? room?.kind !== 'direct' && !mine : room?.kind === 'direct' ? chatPrefs.showBothInDirect : !mine || chatPrefs.showSelfNameInGroups;
+  const showNameOf = mine => threePane ? room?.kind !== 'direct' && !mine : room?.kind === 'direct' ? chatPrefs.showBothInDirect : !mine || chatPrefs.showSelfNameInGroups;
   const recipientIds = groupMembers.filter(user => user.id !== state.me.id).map(user => user.id);
   if (recipientIds.join() !== recipientsCache.current.join()) recipientsCache.current = recipientIds;
   const query = search.trim().toLowerCase();
@@ -776,7 +837,7 @@ export default function App() {
       onPointerDown={event => { press.onPointerDown(event); if (sortable) pinnedDrag.begin(event, target.id, pinnedIds); dragOut(event, target); }}
       onContextMenu={event => { if (longPress.current.fired) event.preventDefault(); else conversationMenu(event, target); }}
       onKeyDown={event => { if (sortable && pinnedDrag.keyMove(event, target.id, pinnedIds)) return; if (event.key === 'ContextMenu' || (event.shiftKey && event.key === 'F10')) { const rect = event.currentTarget.getBoundingClientRect(); conversationMenu(Object.assign(pressEvent(rect.left + 24, rect.bottom), { preventDefault: () => event.preventDefault() }), target); } }}>
-      <span className="conversation-icon" title={compact ? target.name : undefined}>{roomIcon(target, classic ? 40 : 44)}{compact && showUnread && <i className="compact-dot" aria-hidden="true" />}</span><span className="conversation-copy"><span className="conversation-title"><span className="conversation-name">{target.name}</span>{target.kind === 'direct' && <StatusEmoji user={peerOf(target)} />}{target.pinned && <Pin className="conversation-pin" size={11} aria-label="已置顶" />}{target.muted && <BellOff className="conversation-pin" size={11} aria-label="免打扰" />}<time>{target.lastMessage ? formatTime(target.lastMessage.createdAt) : ''}</time></span>
+      <span className="conversation-icon" title={compact ? target.name : undefined}>{roomIcon(target, threePane ? 40 : 44)}{compact && showUnread && <i className="compact-dot" aria-hidden="true" />}</span><span className="conversation-copy"><span className="conversation-title"><span className="conversation-name">{target.name}</span>{target.kind === 'direct' && <StatusEmoji user={peerOf(target)} />}{target.pinned && <Pin className="conversation-pin" size={11} aria-label="已置顶" />}{target.muted && <BellOff className="conversation-pin" size={11} aria-label="免打扰" />}<time>{target.lastMessage ? formatTime(target.lastMessage.createdAt) : ''}</time></span>
         <span className="conversation-preview">{status?.mentioned && <span className="mention-flag">[有人@我]</span>}{typingLabel(target) ? <span className="typing-text">{typingLabel(target)}</span> : target.id !== selected && draftTexts[target.id] ? <span className="draft-preview"><span className="draft-tag">[草稿]</span><PrivatePreview privateMode={privateMode}>{draftTexts[target.id].replace(/\s+/g, ' ')}</PrivatePreview></span> : <PrivatePreview privateMode={privateMode && Boolean(target.lastMessage)}>{previewText(target.lastMessage)}</PrivatePreview>}{showUnread && <span className="unread-badge" aria-label={label} title={label}>{status?.hasUnread ? status.exact ? status.count > 99 ? '99+' : status.count : '新' : ''}</span>}</span>
       </span>
     </button>;
@@ -819,7 +880,7 @@ export default function App() {
     .map(([department, members]) => [department, members.sort((a, b) => Number(b.online) - Number(a.online) || a.name.localeCompare(b.name, 'zh-Hans-CN'))]);
   const peerStatus = room?.kind === 'direct' && activeStatus(peer);
   const subtitle = room?.kind === 'direct' ? (peerStatus ? `${peerStatus.emoji} ${peerStatus.text} · `.replace(/^ /, '') : '') + (peer?.online ? '在线' : peer?.lastSeen ? seenText(peer.lastSeen) : '离线 · 上线后送达') : `${groupMembers.length} 位成员 · ${groupMembers.filter(user => user.online).length} 人在线`;
-  const sameGroup = (previous, message) => !classic && previous && !previous.recalledAt && !message.recalledAt && !previous.nudge && !message.nudge && previous.senderId === message.senderId &&
+  const sameGroup = (previous, message) => !threePane && previous && !previous.recalledAt && !message.recalledAt && !previous.nudge && !message.nudge && previous.senderId === message.senderId &&
     new Date(previous.createdAt).toDateString() === new Date(message.createdAt).toDateString() && message.createdAt - previous.createdAt < 5 * 60000;
   const userOf = message => displayUser(userMap[message.senderId]) || (message.bot ? { id: message.senderId, name: message.bot, avatar: 'bot' } : undefined);
   // 同一个人连续发的消息合成一组：头像放在组的一侧，滚动时贴住可视区底部。
@@ -828,15 +889,16 @@ export default function App() {
     const previous = currentMessages[index - 1];
     const newDay = !previous || new Date(previous.createdAt).toDateString() !== new Date(message.createdAt).toDateString();
     if (!newDay && sameGroup(previous, message)) messageGroups.at(-1).messages.push(message);
-    // 经典风格：和上一条相隔 5 分钟以上（或跨天）时在中间插一行时间。
-    else messageGroups.push({ newDay, messages: [message], timeLabel: classic && (newDay || message.createdAt - previous.createdAt >= 5 * 60000) ? classicTime(message.createdAt) : null });
+    // 三栏风格：和上一条相隔 5 分钟以上（或跨天）时在中间插一行时间。
+    else messageGroups.push({ newDay, messages: [message], timeLabel: threePane && (newDay || message.createdAt - previous.createdAt >= 5 * 60000) ? classicTime(message.createdAt) : null });
   }
   return <>{appLock.locked && <LockScreen appLock={appLock} onLogout={logout} loggingOut={loggingOut} />}<div inert={appLock.locked} className={`app ${popoutRoom ? 'popout' : ''} ${privateMode ? 'privacy-on' : ''} ${nativeTitlebar ? 'native' : ''} ${mobileChat ? 'show-chat' : ''} ${compact ? 'compact-sidebar' : ''}`} style={{ '--sidebar': `${sidebarWidth}px` }} data-screen-label="虾扯蛋聊天空间">
-    {classic && !popoutRoom && <nav className="classic-rail" aria-label="导航">
+    {skin === 'qq' && !popoutRoom && <header className="qq-app-bar" data-drag-region><div className="qq-brand"><span className="qq-brand-mark"><ShrimpBrandGlyph /></span><b>虾扯蛋</b></div><button type="button" className="qq-self" aria-label="修改昵称和头像" title="修改昵称和头像" onClick={() => setModal('profile')}><Avatar user={userMap[state.me.id] || state.me} size={32} online={connected} /><span><b>{userMap[state.me.id]?.name || state.me.name}</b><small>{activeStatus(userMap[state.me.id]) ? `${activeStatus(userMap[state.me.id]).emoji} ${activeStatus(userMap[state.me.id]).text}` : userMap[state.me.id]?.bio || (connected ? '在线' : '正在连接…')}</small></span></button></header>}
+    {threePane && !popoutRoom && <nav className="classic-rail" aria-label="导航">
       <div className="rail-drag" data-drag-region aria-hidden="true" />
       <button type="button" className="rail-me" aria-label="修改昵称和头像" title={`${state.me.name} · ${state.workspace.name}`} onClick={() => setModal('profile')}><Avatar user={userMap[state.me.id] || state.me} size={36} /></button>
-      {railButton(MessageCircle, '聊天', () => chooseFolderTab('all'), { active: true, badge: unreadCount })}
-      {railButton(BookUser, '通讯录', () => { setContactQuery(''); setModal('members'); })}
+      {railButton(skin === 'qq' ? QQChatGlyph : MessageCircle, '聊天', () => chooseFolderTab('all'), { active: true, badge: unreadCount })}
+      {railButton(skin === 'qq' ? QQContactGlyph : BookUser, '通讯录', () => { setContactQuery(''); setModal('members'); })}
       {railButton(AtSign, '提到我的', () => { setActivity(null); setModal('activity'); })}
       {railButton(Bookmark, '收藏', () => setModal('saved'))}
       <span className="rail-spacer" />
@@ -848,14 +910,14 @@ export default function App() {
       <MobileHome tab={mobileTab} me={{ ...state.me, ...userMap[state.me.id] }} users={state.users} connected={connected} onDirect={directMessage} onAction={setModal} isAdmin={cloud && isAdmin} loggingOut={loggingOut} onLogout={logout} />
       <div className="sidebar-drag" data-drag-region aria-hidden="true" />
       <div className="space-heading" data-drag-region><div className="space-copy"><h1>{state.workspace.name}</h1><p><i className={`status-dot ${connected ? 'online' : ''}`} />{online.length} 人在线</p></div><span className="space-actions">{anyUnread && <IconButton icon={CheckCheck} label="全部标为已读" onClick={markAllRead} />}<IconButton icon={BookUser} label="通讯录" className="contacts-entry" onClick={() => { setContactQuery(''); setModal('members'); }} /><IconButton icon={AtSign} label="提到我的" onClick={() => { setActivity(null); setModal('activity'); }} /><IconButton icon={Bookmark} label="收藏" onClick={() => setModal('saved')} /><IconButton icon={UserPlus} label="邀请同事" onClick={() => setModal('invite')} /></span></div>
-      {classic ? <div className="classic-search">{searchBox}<IconButton icon={CirclePlus} size={22} label="发起聊天、邀请同事" className="classic-plus" aria-haspopup="menu" onClick={openClassicMenu} /></div> : searchBox}
+      {threePane ? <div className="classic-search">{searchBox}<IconButton icon={skin === 'qq' ? Plus : CirclePlus} size={skin === 'qq' ? 21 : 22} label="发起聊天、邀请同事" className="classic-plus" aria-haspopup="menu" onClick={openClassicMenu} /></div> : searchBox}
       {!compact && <div className="folder-bar"><div className="folder-tabs" role="tablist" aria-label="会话分组">{folderTabs.map(tab => <button type="button" role="tab" key={tab.id} aria-selected={tab.id === tabKey} className={tab.id === tabKey ? 'active' : ''} onClick={() => chooseFolderTab(tab.id)}>
         {tab.label}{tab.unread > 0 && <span className="folder-unread">{tab.unread > 99 ? '99+' : tab.unread}</span>}</button>)}</div>
         {activeFolder && <IconButton icon={PencilLine} label="编辑这个文件夹" size={14} onClick={() => setEditingFolder(activeFolder)} />}
         <IconButton icon={FolderPlus} label="新建文件夹" size={14} onClick={() => setEditingFolder('new')} /></div>}
       <nav className="conversation-scroll" aria-label="会话">
-        {classic ? (() => {
-          // 经典风格：一个列表，置顶的在前，其余按最后一条消息的时间排。
+        {threePane ? (() => {
+          // 三栏风格：一个列表，置顶的在前，其余按最后一条消息的时间排。
           const pinnedRooms = filtered.filter(target => target.pinned), ids = query || tabKey !== 'all' ? undefined : pinnedRooms.map(target => target.id);
           const recent = filtered.filter(target => !target.pinned).sort((x, y) => (y.lastMessage?.createdAt || 0) - (x.lastMessage?.createdAt || 0));
           return <>{pinnedRooms.map(target => roomButton(target, ids))}{recent.map(target => roomButton(target))}</>;
@@ -881,13 +943,13 @@ export default function App() {
     </aside>
     <main className="chat-main">
       {room ? <>
-      <div className="conversation-body"><section className="chat-column">
+      <div className="conversation-body"><section className="chat-column" ref={chatColumn} style={{ '--qq-composer-height': `${composerHeight}px` }}>
         <header className="chat-toolbar" data-drag-region>
           <IconButton icon={ChevronLeft} label="返回会话列表" className="back-button glass" onClick={() => setMobileChat(false)} />
-          <div className="toolbar-title glass">{room.kind === 'direct' && peer ? avatarButton(peer, roomIcon(room, 34), 'toolbar-icon avatar-button') : canEditRoomAvatar ? <button type="button" className="toolbar-icon avatar-button" aria-label="设置群头像" title="设置群头像" aria-haspopup="dialog" onClick={() => setModal('roomAvatar')}>{roomIcon(room, 34)}</button> : <span className="toolbar-icon">{roomIcon(room, 34)}</span>}<span className="toolbar-copy"><h2>{room.name}{classic && room.kind !== 'direct' && <span className="title-count">({groupMembers.length})</span>}{room.kind === 'group' && room.allMuted && <span className="auto-delete-tag"><MicOff size={12} />全员禁言</span>}{room.autoDelete > 0 && <span className="auto-delete-tag" title={`消息发出 ${autoDeleteLabel(room.autoDelete)} 后自动删除`}><Timer size={12} />{autoDeleteLabel(room.autoDelete)}</span>}</h2><span className={`toolbar-subtitle ${typingLabel(room) ? 'typing-text' : ''}`} aria-live="polite">{typingLabel(room) || subtitle}</span></span></div>
+          <div className="toolbar-title glass">{room.kind === 'direct' && peer ? avatarButton(peer, roomIcon(room, 34), 'toolbar-icon avatar-button') : canEditRoomAvatar ? <button type="button" className="toolbar-icon avatar-button" aria-label="设置群头像" title="设置群头像" aria-haspopup="dialog" onClick={() => setModal('roomAvatar')}>{roomIcon(room, 34)}</button> : <span className="toolbar-icon">{roomIcon(room, 34)}</span>}<span className="toolbar-copy"><h2>{room.name}{threePane && room.kind !== 'direct' && <span className="title-count">({groupMembers.length})</span>}{room.kind === 'group' && room.allMuted && <span className="auto-delete-tag"><MicOff size={12} />全员禁言</span>}{room.autoDelete > 0 && <span className="auto-delete-tag" title={`消息发出 ${autoDeleteLabel(room.autoDelete)} 后自动删除`}><Timer size={12} />{autoDeleteLabel(room.autoDelete)}</span>}</h2><span className={`toolbar-subtitle ${typingLabel(room) ? 'typing-text' : ''}`} aria-live="polite">{typingLabel(room) || subtitle}</span></span></div>
           <div className="toolbar-actions">
             <button className={`toolbar-button glass privacy-toggle ${privateMode ? 'enabled' : ''}`} onClick={() => changePrivacy(value => !value)} role="switch" aria-checked={privateMode} aria-label="隐私模式" title="隐私模式 · ⌘⇧P · 悬停消息查看内容">{privateMode ? <EyeOff size={16} /> : <Eye size={16} />}<kbd>⌘⇧P</kbd></button>
-            <button className={`toolbar-button glass member-count ${showMembers ? 'selected' : ''}`} onClick={() => { setShowMembers(value => !value); setPanelView('members'); }} aria-pressed={showMembers} aria-label={`会话成员，${groupMembers.length} 人`} title={classic ? '聊天信息' : '会话成员'}>{classic ? <MoreHorizontal size={19} strokeWidth={1.7} /> : <><span className="avatar-stack">{groupMembers.slice(0, 3).map(user => <Avatar key={user.id} user={user} size={20} />)}</span><span>{groupMembers.length}</span></>}</button>
+            <button className={`toolbar-button glass member-count ${showMembers ? 'selected' : ''}`} onClick={() => { setShowMembers(value => !value); setPanelView('members'); }} aria-pressed={showMembers} aria-label={`会话成员，${groupMembers.length} 人`} title={threePane ? '聊天信息' : '会话成员'}>{threePane ? <MoreHorizontal size={19} strokeWidth={1.7} /> : <><span className="avatar-stack">{groupMembers.slice(0, 3).map(user => <Avatar key={user.id} user={user} size={20} />)}</span><span>{groupMembers.length}</span></>}</button>
           </div>
         </header>
         {pins.roomId === room.id && pins.pins.length > 0 && (() => { const current = pins.pins[pinIndex % pins.pins.length]; return <div className="pinned-bar glass" role="note">
@@ -904,8 +966,8 @@ export default function App() {
         {hasMore[selected] && <button className="load-older" onClick={loadOlder} disabled={loading}>{loading ? '正在加载…' : '查看更早的消息'}</button>}
         {!hasMore[selected] && <div className={`channel-welcome ${currentMessages.length ? 'has-messages' : ''}`}><span className="welcome-icon">{room.kind === 'public' ? <Hash size={22} /> : room.kind === 'group' ? <Users size={22} /> : <MessageCircle size={22} />}</span><h3>{room.kind === 'public' ? cloud ? '大家都在，随便扯两句。' : '同一个网络，随便扯两句。' : room.kind === 'group' ? `欢迎来到「${room.name}」` : `和${room.name}聊聊吧`}</h3><p>{room.kind === 'public' ? '工作、日常、好玩的，都可以往这里丢。' : room.kind === 'group' ? '文字、图片、视频，把想分享的都留在这里。' : '有些话，适合只对一个人说。'}</p>{room.kind === 'public' && !currentMessages.length && <button className="secondary-button" onClick={() => setModal('invite')}><UserPlus size={15} />邀请同事加入</button>}</div>}
         {!currentMessages.length && loading && <div className="messages-loading"><LoaderCircle className="spin" size={17} />正在加载消息…</div>}
-        {messageGroups.map(group => { const first = group.messages[0]; const mine = first.senderId === state.me.id; const author = userOf(first); const withAvatar = showAvatar(mine) && !first.nudge; const avatar = withAvatar && !first.recalledAt && <div className="group-avatar">{avatarButton(first.bot ? null : author, <Avatar user={author} size={classic ? 36 : 32} />)}</div>;
-          return <React.Fragment key={first.id}>{group.timeLabel && <div className="time-divider"><span>{group.timeLabel}</span></div>}{!classic && group.newDay && <div className="date-divider"><span>{new Date(group.messages[0].createdAt).toDateString() === new Date().toDateString() ? '今天' : new Date(group.messages[0].createdAt).toLocaleDateString('zh-CN', { month: 'long', day: 'numeric' })}</span></div>}<div className={`message-group ${mine ? 'mine' : ''} ${withAvatar && (classic || chatPrefs.avatarMode === 'top') ? 'avatar-top' : ''}`}>{!mine && avatar}<div className="group-rows">{group.messages.map((message, position) => <Message {...messageHandlers} key={message.id} message={message} users={state.users} nicknames={nicknamesKey} showName={position === 0 && !first.nudge && showNameOf(mine)} reEditable={Boolean(recalledTexts[message.id])} quickReact={chatPrefs.quickReact}
+        {messageGroups.map(group => { const first = group.messages[0]; const mine = first.senderId === state.me.id; const author = userOf(first); const withAvatar = showAvatar(mine) && !first.nudge; const avatar = withAvatar && !first.recalledAt && <div className="group-avatar">{avatarButton(first.bot ? null : author, <Avatar user={author} size={threePane ? 36 : 32} />)}</div>;
+          return <React.Fragment key={first.id}>{group.timeLabel && <div className="time-divider"><span>{group.timeLabel}</span></div>}{!threePane && group.newDay && <div className="date-divider"><span>{new Date(group.messages[0].createdAt).toDateString() === new Date().toDateString() ? '今天' : new Date(group.messages[0].createdAt).toLocaleDateString('zh-CN', { month: 'long', day: 'numeric' })}</span></div>}<div className={`message-group ${mine ? 'mine' : ''} ${withAvatar && (threePane || chatPrefs.avatarMode === 'top') ? 'avatar-top' : ''}`}>{!mine && avatar}<div className="group-rows">{group.messages.map((message, position) => <Message {...messageHandlers} key={message.id} message={message} users={state.users} nicknames={nicknamesKey} showName={position === 0 && !first.nudge && showNameOf(mine)} reEditable={Boolean(recalledTexts[message.id])} quickReact={chatPrefs.quickReact}
           reactionOptions={state.reactions || NO_REACTIONS} picking={reactingTo === message.id} selecting={Boolean(selection)} selected={Boolean(selection?.includes(message.id))}
           user={userOf(message)} grouped mine={message.senderId === state.me.id} continued={position > 0} last={position === group.messages.length - 1} privateMode={privateMode} viewerId={state.me.id}
           readingEnabled={(windowActive || privateMode) && !modal && !removing && !recalling && !contextMenu && !preview && !loading} recipients={recipientsCache.current} direct={room.kind === 'direct'} />)}</div>{mine && avatar}</div></React.Fragment>; })}
@@ -917,24 +979,34 @@ export default function App() {
         <button className="secondary-button" onClick={() => setSelection(null)}>取消</button>
         <button className="secondary-button" disabled={!selection.length || overSelected} onClick={() => setHiding([...selection])}>删除</button>
         <ForwardButtons count={selection.length} disabled={!selection.length || overSelected} onForward={merge => { setForwardMerge(merge); setForwarding([...selection]); }} />
-      </div> : room.kind === 'group' && room.allMuted && !isGroupManager ? <div className="muted-notice glass" role="status">全员禁言中，只有群主和管理员可以发言</div> : state.me.muted ? <div className="muted-notice glass" role="status">你已被管理员禁言{state.me.mutedUntil ? `，${new Date(state.me.mutedUntil).toLocaleString('zh-CN', { hour12: false, month: 'numeric', day: 'numeric', hour: '2-digit', minute: '2-digit' })} 后恢复` : ''}</div> : <Composer injectDraft={injectDraft} injectShare={injectShare} sendKey={chatPrefs.sendKey} onDraft={(id, text) => setDraftTexts(previous => (previous[id] || '') === text ? previous : { ...previous, [id]: text })} room={room} connected={connected && !loggingOut} onQueue={(payload, preview) => { sticky.current = true; outbox.send(payload, preview); }} notify={notify} privateMode={privateMode}
+      </div> : room.kind === 'group' && room.allMuted && !isGroupManager ? <div className="muted-notice glass" role="status">全员禁言中，只有群主和管理员可以发言</div> : state.me.muted ? <div className="muted-notice glass" role="status">你已被管理员禁言{state.me.mutedUntil ? `，${new Date(state.me.mutedUntil).toLocaleString('zh-CN', { hour12: false, month: 'numeric', day: 'numeric', hour: '2-digit', minute: '2-digit' })} 后恢复` : ''}</div> : <>{skin === 'qq' && <div className="qq-composer-resizer" role="separator" aria-orientation="horizontal" aria-label="调整输入区高度" title="拖动调整输入区高度，双击恢复默认" tabIndex={0}
+        onPointerDown={event => { event.preventDefault(); event.currentTarget.setPointerCapture(event.pointerId); composerResize.current = { y: event.clientY, height: composerHeight }; }}
+        onPointerMove={event => { if (!composerResize.current) return; setComposerSize(composerResize.current.height + composerResize.current.y - event.clientY); }}
+        onPointerUp={() => { composerResize.current = null; }} onPointerCancel={() => { composerResize.current = null; }}
+        onDoubleClick={() => setComposerSize(190)}
+        onKeyDown={event => {
+          if (event.key !== 'ArrowUp' && event.key !== 'ArrowDown') return;
+          event.preventDefault(); setComposerSize(composerHeight + (event.key === 'ArrowUp' ? 20 : -20));
+        }}><span /></div>}<Composer skin={skin} injectDraft={injectDraft} injectShare={injectShare} sendKey={chatPrefs.sendKey} onDraft={(id, text) => setDraftTexts(previous => (previous[id] || '') === text ? previous : { ...previous, [id]: text })} room={room} connected={connected && !loggingOut} onQueue={(payload, preview) => { sticky.current = true; outbox.send(payload, preview); }} notify={notify} privateMode={privateMode}
         members={room.kind === 'direct' ? [] : groupMembers.filter(user => user.id !== state.me.id)} canMentionAll={room.kind === 'group' || (room.kind === 'public' && (isOwner || isAdmin))} phrases={state.phrases}
         notice={scheduled.roomId === room.id && scheduled.items.length > 0 && <button type="button" className="scheduled-bar glass" onClick={() => setModal('scheduled')}><Clock size={14} />{scheduled.items.length} 条定时消息待发送 · 最近 {new Date(scheduled.items[0].sendAt).toLocaleString('zh-CN', { hour12: false, month: 'numeric', day: 'numeric', hour: '2-digit', minute: '2-digit' })}</button>}
         onCreatePoll={() => setModal('poll')} onSchedule={text => setScheduleText(text)} onTyping={sendTyping} editing={editTarget} onCancelEdit={() => setEditing(null)} onEdited={message => { applyEdit(message); setEditing(null); }}
         onEditLast={() => { if (lastOwn) { setReplying(null); setEditing({ roomId: lastOwn.roomId, id: lastOwn.id }); } }}
-        reply={replyTarget} replyAuthor={replyTarget && (replyTarget.senderId === state.me.id ? '自己' : userMap[replyTarget.senderId]?.name || '成员')} onCancelReply={() => setReplying(null)} />}</section>
+        reply={replyTarget} replyAuthor={replyTarget && (replyTarget.senderId === state.me.id ? '自己' : userMap[replyTarget.senderId]?.name || '成员')} replyMentionName={replyTarget?.senderId !== state.me.id ? userMap[replyTarget?.senderId]?.name : null} onCancelReply={() => setReplying(null)} /></>}</section>
       {showMembers && <aside className="members-panel glass" aria-label={panelView === 'history' ? '聊天记录' : panelView === 'files' ? '图片与文件' : panelView === 'thread' ? '话题' : '会话成员'}>{panelView === 'thread' && threadRoot
         ? <ThreadPanel key={threadRoot} rootId={threadRoot} room={room} viewerId={state.me.id} privateMode={privateMode} threadTick={threadTick} onBack={() => setPanelView('members')} notify={notify}
           onLoaded={items => { threadMessages.current = items; }} handlers={messageHandlers} userOf={userOf} reactionOptions={state.reactions || NO_REACTIONS} reactingTo={reactingTo} quickReact={chatPrefs.quickReact}
           blocked={room.kind === 'group' && room.allMuted && !isGroupManager ? '全员禁言中，只有群主和管理员可以发言' : state.me.muted ? '你已被管理员禁言' : ''}
-          composer={{ connected, notify, privateMode, phrases: state.phrases, sendKey: chatPrefs.sendKey, members: room.kind === 'direct' ? [] : groupMembers.filter(user => user.id !== state.me.id), canMentionAll: room.kind === 'group' || (room.kind === 'public' && (isOwner || isAdmin)) }}
+          composer={{ connected, notify, privateMode, skin, phrases: state.phrases, sendKey: chatPrefs.sendKey, members: room.kind === 'direct' ? [] : groupMembers.filter(user => user.id !== state.me.id), canMentionAll: room.kind === 'group' || (room.kind === 'public' && (isOwner || isAdmin)) }}
           outbox={outbox} editing={threadEditing && !threadEditing.recalledAt ? threadEditing : null} onCancelEdit={() => setThreadEditing(null)} onEdited={message => { applyEdit(message); setThreadEditing(null); }}
           onEditLast={() => { const own = threadMessages.current.findLast(item => item.threadOf && item.senderId === state.me.id && !item.recalledAt); if (own) setThreadEditing(own); }} />
         : panelView === 'files'
         ? <RoomFiles room={room} userMap={userMap} privateMode={privateMode} historyVersion={historyVersion} onBack={() => setPanelView('members')} onPreview={setPreview} onJump={jumpToMessage} />
         : panelView === 'history'
         ? <HistorySearch room={room} userMap={userMap} members={groupMembers} privateMode={privateMode} historyVersion={historyVersion} onBack={() => setPanelView('members')} onJump={jumpToMessage} />
-        : <><div className="members-panel-heading"><h3>{classic ? '聊天信息' : '会话成员'} <small>{groupMembers.length}</small></h3><IconButton icon={X} label="关闭成员面板" size={15} onClick={() => setShowMembers(false)} /></div>{room.kind === 'group' && <button className="add-member-button" onClick={() => setModal('addMembers')}><UserPlus size={15} />邀请成员</button>}<button className="history-entry" onClick={() => setPanelView('history')}><MessagesSquare size={16} /><span>聊天记录</span><ChevronRight size={14} /></button><button className="history-entry" onClick={() => setPanelView('files')}><Images size={16} /><span>图片与文件</span><ChevronRight size={14} /></button><button className="history-entry" onClick={() => downloadExport(room.id)}><Download size={16} /><span>导出聊天记录</span></button>
+        : <><div className="members-panel-heading"><h3>{skin === 'qq' ? (room.kind === 'direct' ? '聊天信息' : '群聊成员') : threePane ? '聊天信息' : '会话成员'} <small>{groupMembers.length}</small></h3><IconButton icon={X} label="关闭成员面板" size={15} onClick={() => setShowMembers(false)} /></div>
+          {skin === 'qq' && room.kind !== 'direct' && <label className="qq-member-search"><Search size={14} /><input aria-label="搜索群成员" placeholder="搜索群成员" value={memberQuery} onChange={event => setMemberQuery(event.target.value)} />{memberQuery && <IconButton icon={X} label="清空成员搜索" size={13} onClick={() => setMemberQuery('')} />}</label>}
+          {room.kind === 'group' && <button className="add-member-button" onClick={() => setModal('addMembers')}><UserPlus size={15} />邀请成员</button>}<button className="history-entry" onClick={() => setPanelView('history')}><MessagesSquare size={16} /><span>聊天记录</span><ChevronRight size={14} /></button><button className="history-entry" onClick={() => setPanelView('files')}><Images size={16} /><span>图片与文件</span><ChevronRight size={14} /></button><button className="history-entry" onClick={() => downloadExport(room.id)}><Download size={16} /><span>导出聊天记录</span></button>
           {room.kind === 'group' && (editingNickname !== null
             ? <form className="nickname-form" onSubmit={event => { event.preventDefault(); saveNickname(editingNickname); }}><input autoFocus aria-label="我在本群的昵称" maxLength={16} placeholder={`留空则显示「${userMap[state.me.id]?.name}」`} value={editingNickname} onChange={event => setEditingNickname(event.target.value)} onKeyDown={event => { if (event.key === 'Escape') { event.preventDefault(); setEditingNickname(null); } }} />
                 <button type="button" className="secondary-button" onClick={() => setEditingNickname(null)}>取消</button><button className="primary-button">保存</button></form>
@@ -965,7 +1037,7 @@ export default function App() {
               <p>{room.announcement?.text || '暂无公告'}</p></section>
           </>}
           {room.kind === 'public' && (isOwner || isAdmin) && <button className="history-entry" onClick={() => setGroupAction({ type: 'webhooks' })}><Bot size={16} /><span>大厅机器人</span><ChevronRight size={14} /></button>}
-          <div className="members-list">{groupMembers.map(user => memberRow(user, 30, room.kind === 'group', true))}</div>
+          <div className="members-list">{visiblePanelMembers.map(user => memberRow(user, 30, room.kind === 'group', true))}{memberNeedle && !visiblePanelMembers.length && <p className="qq-member-empty">没有找到匹配的群成员</p>}</div>
           {room.kind === 'group' && <button className="leave-group" onClick={() => setGroupAction({ type: 'leave' })}><LogOut size={15} />退出群聊</button>}</>}</aside>}</div>
       </> : <div className="empty-conversation"><MessageCircle size={32} /><h2>选择一个对话</h2><button className="secondary-button" onClick={() => setModal('members')}>发起私聊</button></div>}
     </main>

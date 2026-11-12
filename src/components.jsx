@@ -428,9 +428,14 @@ export function OutboxMessage({ item, avatarColumn, onRetry, onDiscard }) {
 
 export function ContextMenu({ menu, onClose }) {
   const ref = useRef();
+  const [measuredTop, setMeasuredTop] = useState(null);
   const smallScreen = matchMedia('(max-width: 760px)').matches;
   const menuWidth = smallScreen ? 220 : 152;
   const viewportHeight = window.visualViewport?.height || innerHeight;
+  useLayoutEffect(() => {
+    if (menu.above == null || !ref.current) return;
+    setMeasuredTop(Math.max(8, menu.above - ref.current.getBoundingClientRect().height));
+  }, [menu.above, menu.items.length]);
   useEffect(() => {
     const dismiss = event => { if (!ref.current?.contains(event.target)) onClose(); };
     const key = event => {
@@ -449,7 +454,9 @@ export function ContextMenu({ menu, onClose }) {
     document.addEventListener('scroll', onClose, true);
     return () => { document.removeEventListener('pointerdown', dismiss); document.removeEventListener('keydown', key); window.removeEventListener('blur', onClose); window.removeEventListener('resize', onClose); document.removeEventListener('scroll', onClose, true); };
   }, [onClose]);
-  return <div ref={ref} role="menu" aria-label={menu.label} className="message-context-menu" onContextMenu={event => { event.preventDefault(); event.stopPropagation(); }} style={{ left: Math.max(8, Math.min(menu.x, innerWidth - menuWidth - 8)), top: Math.max(8, Math.min(menu.y, viewportHeight - menu.items.length * (smallScreen ? 44 : 36) - 16)), maxHeight: viewportHeight - 16, overflowY: 'auto' }}>{menu.items.map((item, index) => <button key={item.id} autoFocus={index === 0} role="menuitem" onClick={() => { onClose(); item.action(); }}>{item.label}</button>)}</div>;
+  const fallbackTop = menu.y ?? 8;
+  const top = measuredTop ?? Math.max(8, Math.min(fallbackTop, viewportHeight - menu.items.length * (smallScreen ? 44 : 36) - 16));
+  return <div ref={ref} role="menu" aria-label={menu.label} className="message-context-menu" onContextMenu={event => { event.preventDefault(); event.stopPropagation(); }} style={{ left: Math.max(8, Math.min(menu.x, innerWidth - menuWidth - 8)), top, maxHeight: viewportHeight - 16, overflowY: 'auto' }}>{menu.items.map((item, index) => <button key={item.id} autoFocus={index === 0} role="menuitem" onClick={() => { onClose(); item.action(); }}>{item.label}</button>)}</div>;
 }
 
 // 资料卡：点头像或名字弹出，显示在线状态、部门、签名；可以直接发消息（自己的卡片是编辑资料）。
@@ -495,8 +502,9 @@ export function ProfileCard({ user, anchor, self, note = '', onSaveNote, onMessa
     return () => { document.removeEventListener('pointerdown', dismiss); document.removeEventListener('keydown', key, true); window.removeEventListener('resize', onClose); };
   }, [onClose]);
   const status = user.removed ? '已离开空间' : user.online ? '在线' : user.lastSeen ? seenText(user.lastSeen) : '离线';
+  const cardWidth = document.documentElement.dataset.style === 'qq' ? 360 : 268;
   return <div ref={ref} role="dialog" aria-label={`${user.name}的资料`} tabIndex={-1} className="profile-card"
-    style={{ left: Math.max(8, Math.min(anchor.x, innerWidth - 268)), top }}>
+    style={{ left: Math.max(8, Math.min(anchor.x, innerWidth - cardWidth - 8)), top }}>
     <Avatar user={user} size={64} online={user.removed ? undefined : user.online} />
     <h3 style={{ color: nameColor(user.id, user) }}>{user.name}{self && <small className="me-tag">我</small>}</h3>
     {groupNickname && <p className="profile-status">群昵称：{groupNickname}</p>}
@@ -517,11 +525,13 @@ export function ProfileCard({ user, anchor, self, note = '', onSaveNote, onMessa
     </form> : <button type="button" className={`profile-note ${note ? '' : 'empty'}`} onClick={() => { setDraftNote(note); setEditingNote(true); }} title="只有你自己能看到备注">
       <small>备注</small><span>{note || '添加备注'}</span><PencilLine size={13} />
     </button>)}
-    {self && onSetStatus && <button type="button" className="secondary-button" onClick={onSetStatus}>{activeStatus(user) ? '修改状态' : '设置状态'}</button>}
-    {self ? <button type="button" className="secondary-button" onClick={onEdit}>编辑资料</button>
-      : !user.removed && <button type="button" className="primary-button" onClick={onMessage}><MessageCircle size={15} />发送消息</button>}
-    {onNudge && <button type="button" className="secondary-button" onClick={onNudge}><Hand size={15} />{self ? '拍拍自己' : '拍一拍'}</button>}
-    {onShare && !user.removed && <button type="button" className="secondary-button" onClick={onShare}><Contact size={15} />推荐给别人</button>}
+    <div className="profile-card-actions">
+      {self && onSetStatus && <button type="button" className="secondary-button" onClick={onSetStatus}>{activeStatus(user) ? '修改状态' : '设置状态'}</button>}
+      {self ? <button type="button" className="secondary-button" onClick={onEdit}>编辑资料</button>
+        : !user.removed && <button type="button" className="primary-button" onClick={onMessage}><MessageCircle size={15} />发送消息</button>}
+      {onNudge && <button type="button" className="secondary-button" onClick={onNudge}><Hand size={15} />{self ? '拍拍自己' : '拍一拍'}</button>}
+      {onShare && !user.removed && <button type="button" className="secondary-button" onClick={onShare}><Contact size={15} />推荐给别人</button>}
+    </div>
     {groupActions.length > 0 && <div className="profile-group-actions">{groupActions.map(item => <button type="button" key={item.label} className={`text-button ${item.danger ? 'danger-text' : ''}`} onClick={item.action}>{item.label}</button>)}</div>}
   </div>;
 }

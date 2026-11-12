@@ -1,0 +1,1187 @@
+/* QQ 风格：复用经典风格的三栏骨架，只覆盖视觉令牌与关键控件。
+   skin.js 会把 <html> 同时标记为 data-skin="classic" 和 data-style="qq"。
+   窄导航、紧凑会话列表、右侧成员栏和圆角无尾巴气泡是这套皮肤的核心辨识点。 */
+
+:root[data-skin="classic"][data-style="qq"] {
+  --rail: 58px;
+  --canvas: #222222;
+  --classic-window: #232324;
+  --classic-list: #222222;
+  --classic-field: #34363b;
+  --classic-search: #2f2f2f;
+  --classic-box: #202126;
+  --classic-box-line: rgba(255, 255, 255, .09);
+  --classic-box-focus: rgba(24, 144, 255, .65);
+  --classic-line: rgba(255, 255, 255, .065);
+  --classic-hover: rgba(255, 255, 255, .055);
+  --classic-active: rgba(255, 255, 255, .09);
+  --classic-pinned: rgba(255, 255, 255, .035);
+  --classic-rail-icon: rgba(255, 255, 255, .62);
+  --classic-red: #ff5d64;
+  --classic-panel-shadow: -16px 0 36px rgba(0, 0, 0, .38);
+  --qq-shell: #242628;
+  --qq-rail: #222222;
+  --qq-rail-strong: #222222;
+  --qq-topbar: #242628;
+  --qq-selected: #3d3d3d;
+  --qq-selected-hover: #444444;
+  --qq-selected-text: rgba(255, 255, 255, .96);
+  --qq-selected-muted: rgba(255, 255, 255, .6);
+  --qq-selected-avatar: rgba(255, 255, 255, .09);
+  --qq-selected-avatar-text: #fff;
+  --qq-sky: #fff;
+  --qq-blue: #0099ff;
+  --qq-border: rgba(255, 255, 255, .065);
+  --qq-chat-glow: transparent;
+  --glass: #25262b;
+  --glass-solid: #2a2b30;
+  --glass-edge: inset 0 0 0 1px rgba(255, 255, 255, .07);
+  --placeholder: #28292e;
+  --text-1: rgba(255, 255, 255, .91);
+  --text-2: rgba(255, 255, 255, .58);
+  --text-3: rgba(255, 255, 255, .38);
+  --bubble-in: #323338;
+  --bubble-shadow: 0 1px 2px rgba(0, 0, 0, .18);
+  --bubble-out: var(--accent);
+  --bubble-out-text: #fff;
+  --out-text-2: rgba(255, 255, 255, .78);
+  --out-fill: rgba(255, 255, 255, .14);
+  --out-fill-2: rgba(255, 255, 255, .24);
+  --out-line: rgba(255, 255, 255, .3);
+  --ring: #25262b;
+  --online: #52d77a;
+  --danger: #df4b57;
+  --danger-text: #ff7882;
+}
+
+:root[data-skin="classic"][data-style="qq"][data-theme="light"] {
+  --canvas: #f5f5f5;
+  --classic-window: #e7e8eb;
+  --classic-list: #f5f5f5;
+  --classic-field: #eef0f3;
+  --classic-search: #ebebeb;
+  --classic-box: #ffffff;
+  --classic-box-line: rgba(24, 29, 36, .1);
+  --classic-box-focus: rgba(0, 132, 255, .58);
+  --classic-line: rgba(24, 29, 36, .075);
+  --classic-hover: rgba(24, 29, 36, .045);
+  --classic-active: #eceef1;
+  --classic-pinned: rgba(24, 29, 36, .028);
+  --classic-rail-icon: #000000;
+  --classic-red: #ff5a61;
+  --classic-panel-shadow: -12px 0 28px rgba(27, 33, 42, .08);
+  --qq-shell: #cccccc;
+  --qq-rail: #f7f8fa;
+  --qq-rail-strong: #f7f8fa;
+  --qq-topbar: #cccccc;
+  --qq-rail-icon: #333941;
+  --qq-sky: #0b8ff1;
+  --qq-border: rgba(24, 29, 36, .085);
+  --qq-selected: #ebebeb;
+  --qq-selected-hover: #e4e4e4;
+  --qq-selected-text: #1b1e23;
+  --qq-selected-muted: #6f7682;
+  --qq-selected-avatar: #ffffff;
+  --qq-selected-avatar-text: #159bce;
+  --qq-chat-glow: transparent;
+  --glass: #ffffff;
+  --glass-solid: #ffffff;
+  --glass-edge: inset 0 0 0 1px rgba(24, 29, 36, .09);
+  --placeholder: #ffffff;
+  --text-1: #1b1e23;
+  --text-2: #626974;
+  --text-3: #969ca5;
+  --bubble-in: #ffffff;
+  --bubble-shadow: none;
+  --bubble-out: var(--accent);
+  --bubble-out-text: #142331;
+  --out-text-2: rgba(20, 35, 49, .66);
+  --out-fill: rgba(20, 35, 49, .08);
+  --out-fill-2: rgba(20, 35, 49, .15);
+  --out-line: rgba(20, 35, 49, .22);
+  --ring: #ffffff;
+  --online: #27b85a;
+  --danger: #e34e59;
+  --danger-text: #d43b48;
+}
+
+:root[data-skin="classic"][data-style="qq"] .app {
+  background: var(--qq-shell);
+}
+
+:root[data-skin="classic"][data-style="qq"] .qq-app-bar {
+  display: none;
+}
+
+:root[data-skin="classic"][data-style="qq"] .conversation-body {
+  background: var(--qq-topbar);
+  box-shadow: none;
+}
+
+:root[data-skin="classic"][data-style="qq"] .chat-column {
+  background: var(--wallpaper, var(--canvas));
+}
+
+:root[data-skin="classic"][data-style="qq"] .app.native {
+  --rail: 68px;
+}
+
+@media (min-width: 761px) {
+  :root[data-skin="classic"][data-style="qq"] .qq-app-bar {
+    position: absolute;
+    z-index: 9;
+    inset: 0 0 auto;
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    height: 46px;
+    padding: 0 14px 0 12px;
+    background: var(--qq-topbar);
+    border-bottom: 1px solid var(--qq-border);
+    border-radius: 0;
+    box-shadow: none;
+  }
+
+  :root[data-skin="classic"][data-style="qq"] .qq-brand {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    height: 18px;
+    flex: none;
+  }
+
+  :root[data-skin="classic"][data-style="qq"] .qq-brand-mark {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 18px;
+    height: 18px;
+    color: #bfbfc1;
+    flex: none;
+  }
+
+  :root[data-skin="classic"][data-style="qq"][data-theme="light"] .qq-brand-mark {
+    color: #000000;
+  }
+
+  :root[data-skin="classic"][data-style="qq"] .qq-brand-mark svg {
+    width: 18px;
+    height: 18px;
+    display: block;
+  }
+
+  :root[data-skin="classic"][data-style="qq"] .qq-brand-eye {
+    fill: var(--qq-topbar);
+  }
+
+  :root[data-skin="classic"][data-style="qq"] .qq-brand b {
+    color: var(--text-1);
+    font-size: 14px;
+    line-height: 18px;
+    font-weight: 600;
+    white-space: nowrap;
+  }
+
+  :root[data-skin="classic"][data-style="qq"] .qq-self {
+    display: flex;
+    align-items: center;
+    gap: 9px;
+    height: 40px;
+    padding: 0 8px 0 2px;
+    margin-left: 14px;
+    border-radius: 6px;
+    text-align: left;
+  }
+
+  :root[data-skin="classic"][data-style="qq"] .qq-self > span:not(.avatar) {
+    min-width: 0;
+    display: flex;
+    align-items: baseline;
+    gap: 7px;
+  }
+
+  :root[data-skin="classic"][data-style="qq"] .qq-self b {
+    max-width: 112px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    font-size: 14px;
+    font-weight: 600;
+  }
+
+  :root[data-skin="classic"][data-style="qq"] .qq-self small {
+    max-width: 150px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    font-size: 11px;
+    color: var(--text-2);
+  }
+
+  :root[data-skin="classic"][data-style="qq"] .qq-self:hover {
+    background: var(--classic-hover);
+  }
+
+  :root[data-skin="classic"][data-style="qq"] .app:not(.popout) .classic-rail {
+    top: 46px;
+    border-radius: 12px 0 0 12px;
+    overflow: hidden;
+  }
+
+  :root[data-skin="classic"][data-style="qq"] .app:not(.popout) .sidebar {
+    top: 46px;
+    left: var(--rail);
+    border-radius: 0;
+    overflow: hidden;
+    padding-top: 12px;
+  }
+
+  :root[data-skin="classic"][data-style="qq"] .app:not(.popout) .chat-main {
+    padding-top: 46px;
+    padding-left: calc(var(--rail) + var(--sidebar));
+  }
+
+  :root[data-skin="classic"][data-style="qq"] .app:not(.popout) .conversation-body {
+    box-shadow: inset 1px 0 0 var(--qq-border);
+    border-radius: 0;
+    overflow: hidden;
+  }
+}
+
+/* 窄导航：接近 QQ 桌面端的黑色功能栏，当前图标只做轻量高亮。 */
+:root[data-skin="classic"][data-style="qq"] .classic-rail {
+  gap: 5px;
+  padding-top: 14px;
+  border-right: 1px solid var(--qq-border);
+  background: linear-gradient(180deg, var(--qq-rail-strong), var(--qq-rail) 72%);
+}
+
+:root[data-skin="classic"][data-style="qq"] .rail-me {
+  display: none;
+}
+
+:root[data-skin="classic"][data-style="qq"] .rail-me .avatar,
+:root[data-skin="classic"][data-style="qq"] .rail-me .avatar > img {
+  width: 100% !important;
+  height: 100% !important;
+  border-radius: 50%;
+}
+
+:root[data-skin="classic"][data-style="qq"] .rail-button {
+  width: 38px;
+  height: 38px;
+  border-radius: 9px;
+  color: var(--classic-rail-icon);
+}
+
+:root[data-skin="classic"][data-style="qq"] .rail-button svg {
+  width: 21px;
+  height: 21px;
+}
+
+:root[data-skin="classic"][data-style="qq"] .rail-button.active {
+  color: #0099ff;
+  background: rgba(255, 255, 255, .09);
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, .045);
+}
+
+:root[data-skin="classic"][data-style="qq"][data-theme="dark"] .rail-button.active {
+  color: #0099ff;
+  border-radius: 8px;
+  background: transparent;
+  box-shadow: none;
+}
+
+:root[data-skin="classic"][data-style="qq"] .rail-button.active svg {
+  fill: currentColor;
+}
+
+:root[data-skin="classic"][data-style="qq"][data-theme="light"] .rail-button.active {
+  color: #0099ff;
+  border-radius: 12px;
+  background: #ebebeb;
+  box-shadow: none;
+}
+
+:root[data-skin="classic"][data-style="qq"][data-theme="light"] .rail-button.active svg {
+  fill: currentColor;
+  stroke-width: 1.5;
+}
+
+:root[data-skin="classic"][data-style="qq"][data-theme="light"] .rail-button svg {
+  stroke-width: 1.7;
+}
+
+:root[data-skin="classic"][data-style="qq"] .rail-button:not(.active) .qq-chat-body {
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.7;
+}
+
+:root[data-skin="classic"][data-style="qq"] .rail-button:not(.active) .qq-chat-dot {
+  display: none;
+}
+
+:root[data-skin="classic"][data-style="qq"][data-theme="light"] .rail-me {
+  border-color: #d9dde2;
+  box-shadow: none;
+}
+
+:root[data-skin="classic"][data-style="qq"] .rail-badge {
+  top: 1px;
+  left: 22px;
+  background: #ff5038;
+  box-shadow: 0 0 0 2px var(--qq-rail);
+}
+
+:root[data-skin="classic"][data-style="qq"] .rail-dot {
+  top: 8px;
+  right: 8px;
+  box-shadow: 0 0 0 2px var(--qq-rail);
+}
+
+@media (hover: hover) and (pointer: fine) {
+  :root[data-skin="classic"][data-style="qq"] .rail-button:hover:not(:disabled) {
+    color: #fff;
+    background: rgba(255, 255, 255, .065);
+  }
+
+  :root[data-skin="classic"][data-style="qq"][data-theme="light"] .rail-button:hover:not(:disabled) {
+    color: var(--classic-rail-icon);
+    background: #ebebeb;
+  }
+
+  :root[data-skin="classic"][data-style="qq"][data-theme="light"] .rail-button.active:hover:not(:disabled) {
+    color: #0099ff;
+    background: #ebebeb;
+  }
+
+  :root[data-skin="classic"][data-style="qq"][data-theme="dark"] .rail-button.active:hover {
+    color: #0099ff;
+    background: rgba(0, 153, 255, .1);
+  }
+}
+
+/* 会话列表：高密度头像行、灰色选中态和克制的搜索焦点。 */
+:root[data-skin="classic"][data-style="qq"] .sidebar {
+  background: var(--classic-list);
+  border-right: 1px solid var(--qq-border);
+}
+
+:root[data-skin="classic"][data-style="qq"] .space-heading {
+  border-bottom: 1px solid var(--qq-border);
+}
+
+:root[data-skin="classic"][data-style="qq"] .space-copy h1 {
+  color: var(--text-1);
+}
+
+:root[data-skin="classic"][data-style="qq"] .classic-search .sidebar-search {
+  border: 1px solid var(--classic-box-line);
+  height: 36px;
+  border-radius: 7px;
+  background: var(--classic-search);
+  box-shadow: none;
+}
+
+:root[data-skin="classic"][data-style="qq"] .sidebar-search:focus-within {
+  border-color: var(--qq-blue);
+  box-shadow: 0 0 0 2px color-mix(in srgb, var(--qq-blue) 13%, transparent);
+}
+
+:root[data-skin="classic"][data-style="qq"] .classic-plus {
+  width: 40px;
+  height: 40px;
+  border-radius: 12px;
+  color: var(--text-1);
+  background: var(--classic-field);
+  box-shadow: none;
+}
+
+:root[data-skin="classic"][data-style="qq"][data-theme="dark"] .classic-plus {
+  background: #2f2f2f;
+}
+
+:root[data-skin="classic"][data-style="qq"] .classic-plus svg {
+  color: var(--text-2);
+  stroke-width: 1.7;
+}
+
+:root[data-skin="classic"][data-style="qq"] .folder-bar {
+  border-bottom: 1px solid var(--qq-border);
+}
+
+:root[data-skin="classic"][data-style="qq"] .folder-tabs button.active {
+  color: #fff;
+  font-weight: 600;
+}
+
+:root[data-skin="classic"][data-style="qq"][data-theme="dark"] .folder-tabs [role="tab"] {
+  color: rgba(255, 255, 255, .72);
+}
+
+:root[data-skin="classic"][data-style="qq"][data-theme="dark"] .folder-tabs [role="tab"].active {
+  color: #fff;
+}
+
+:root[data-skin="classic"][data-style="qq"] .conversation {
+  width: calc(100% - 16px);
+  min-height: 70px;
+  margin: 1px 8px;
+  padding: 11px 12px;
+  border-radius: 7px;
+}
+
+:root[data-skin="classic"][data-style="qq"] .conversation::after {
+  display: none;
+}
+
+:root[data-skin="classic"][data-style="qq"] :is(.conversation .avatar, .conversation .avatar > img, .conversation .room-avatar) {
+  border-radius: 50%;
+}
+
+:root[data-skin="classic"][data-style="qq"] .conversation .room-avatar {
+  width: 44px;
+  height: 44px;
+  background: color-mix(in srgb, var(--qq-blue) 9%, var(--classic-field));
+  color: color-mix(in srgb, var(--qq-blue) 62%, var(--text-1));
+}
+
+:root[data-skin="classic"][data-style="qq"] .conversation-name {
+  color: var(--text-1);
+  font-size: 14.5px;
+  font-weight: 500;
+}
+
+:root[data-skin="classic"][data-style="qq"] .conversation-preview,
+:root[data-skin="classic"][data-style="qq"] .conversation-title time {
+  color: var(--text-3);
+}
+
+:root[data-skin="classic"][data-style="qq"] .conversation.pinned {
+  background: var(--classic-pinned);
+}
+
+:root[data-skin="classic"][data-style="qq"] .conversation.active {
+  color: var(--qq-selected-text);
+  background: var(--qq-selected);
+  box-shadow: none;
+}
+
+:root[data-skin="classic"][data-style="qq"] .conversation.active :is(.conversation-title time, .conversation-preview, .conversation-pin, .typing-text) {
+  color: var(--qq-selected-muted);
+}
+
+:root[data-skin="classic"][data-style="qq"] .conversation.active .conversation-name {
+  color: var(--qq-selected-text);
+  font-weight: 600;
+}
+
+:root[data-skin="classic"][data-style="qq"] .conversation.active .room-avatar {
+  color: var(--qq-selected-avatar-text);
+  background: var(--qq-selected-avatar);
+}
+
+:root[data-skin="classic"][data-style="qq"] .has-unread .conversation-preview {
+  color: var(--text-2);
+}
+
+:root[data-skin="classic"][data-style="qq"] .conversation .unread-badge,
+:root[data-skin="classic"][data-style="qq"] .conversation.active .unread-badge {
+  position: absolute;
+  top: auto;
+  right: 10px;
+  bottom: 10px;
+  left: auto;
+  color: #fff;
+  background: var(--classic-red);
+  box-shadow: none;
+}
+
+:root[data-skin="classic"][data-style="qq"] .conversation.muted:not(.mentioned) .unread-badge {
+  top: auto;
+  right: 14px;
+  bottom: 14px;
+  left: auto;
+  width: 9px;
+  height: 9px;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  :root[data-skin="classic"][data-style="qq"] .conversation:hover:not(.active) {
+    background: var(--classic-hover);
+  }
+
+  :root[data-skin="classic"][data-style="qq"] .conversation.active:hover {
+    background: var(--qq-selected-hover);
+  }
+}
+
+/* 聊天标题和消息：紧凑标题、居中时间、圆角无尾巴气泡。 */
+:root[data-skin="classic"][data-style="qq"] .chat-toolbar {
+  height: 52px;
+  padding: 0 14px 0 18px;
+  background: var(--canvas);
+  box-shadow: inset 0 -1px 0 var(--qq-border);
+}
+
+:root[data-skin="classic"][data-style="qq"] .toolbar-title {
+  display: flex;
+  align-items: center;
+  gap: 0;
+}
+
+:root[data-skin="classic"][data-style="qq"] .toolbar-icon {
+  display: none;
+}
+
+:root[data-skin="classic"][data-style="qq"] .toolbar-title :is(.avatar, .avatar > img, .room-avatar) {
+  border-radius: 50%;
+}
+
+:root[data-skin="classic"][data-style="qq"] .toolbar-title h2 {
+  font-size: 16px;
+  font-weight: 600;
+}
+
+:root[data-skin="classic"][data-style="qq"] .toolbar-button {
+  border-radius: 9px;
+}
+
+:root[data-skin="classic"][data-style="qq"] .privacy-toggle.enabled,
+:root[data-skin="classic"][data-style="qq"] .member-count.selected {
+  color: var(--qq-blue);
+  background: color-mix(in srgb, var(--qq-blue) 12%, transparent);
+}
+
+:root[data-skin="classic"][data-style="qq"] .message-scroll {
+  padding: 10px 22px 16px;
+  background: var(--canvas);
+}
+
+:root[data-wallpaper][data-skin="classic"][data-style="qq"] .message-scroll {
+  background: transparent;
+}
+
+/* 头像在所有弹窗和列表里统一为圆形，包括资料卡、成员、收藏和头像选择器。 */
+:root[data-skin="classic"][data-style="qq"] :is(.avatar, .avatar > img, .room-avatar, .avatar-button, .room-avatar-preview),
+:root[data-skin="classic"][data-style="qq"] .avatar-hextech > img {
+  border-radius: 50% !important;
+}
+
+:root[data-skin="classic"][data-style="qq"] .time-divider span {
+  padding: 1px 5px;
+  border-radius: 4px;
+  background: transparent;
+}
+
+:root[data-skin="classic"][data-style="qq"][data-theme="dark"] .time-divider span {
+  padding: 3px 10px;
+  border-radius: 999px;
+  background: #1c1d21;
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, .055);
+  color: rgba(255, 255, 255, .45);
+}
+
+:root[data-skin="classic"][data-style="qq"] .message-bubble {
+  padding: 8px 14px;
+  border-radius: 16px !important;
+  box-shadow: var(--bubble-shadow);
+}
+
+:root[data-skin="classic"][data-style="qq"] .message-bubble:not(.has-media):not(.sticker-bubble)::before {
+  display: none;
+}
+
+:root[data-skin="classic"][data-style="qq"] .mine .message-bubble:not(.sticker-bubble) {
+  color: var(--bubble-out-text);
+  background: var(--bubble-out);
+  box-shadow: none;
+}
+
+:root[data-skin="classic"][data-style="qq"] .message-bubble.sticker-bubble {
+  background: none;
+  box-shadow: none;
+}
+
+:root[data-skin="classic"][data-style="qq"] .bubble-name {
+  color: var(--text-3) !important;
+}
+
+:root[data-skin="classic"][data-style="qq"] .read-line {
+  color: var(--text-3);
+}
+
+/* 输入区：低圆角输入容器、灰线工具和紧凑蓝色发送键。 */
+:root[data-skin="classic"][data-style="qq"] .qq-composer-resizer {
+  position: relative;
+  z-index: 4;
+  flex: 0 0 7px;
+  height: 7px;
+  margin: 0;
+  background: transparent;
+  cursor: row-resize;
+  touch-action: none;
+}
+
+:root[data-skin="classic"][data-style="qq"] .qq-composer-resizer::before {
+  content: "";
+  position: absolute;
+  top: 3px;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background: var(--qq-border);
+  transition: background-color 120ms var(--ease-out);
+}
+
+:root[data-skin="classic"][data-style="qq"] .qq-composer-resizer:hover::before,
+:root[data-skin="classic"][data-style="qq"] .qq-composer-resizer:focus-visible::before {
+  background: var(--qq-blue);
+}
+
+:root[data-skin="classic"][data-style="qq"] .qq-composer-resizer:focus-visible {
+  outline: none;
+}
+
+:root[data-skin="classic"][data-style="qq"] .composer-area {
+  flex: none;
+  height: var(--qq-composer-height, 190px);
+  min-height: 0;
+  padding: 4px 14px 12px;
+  background: var(--canvas);
+  box-shadow: none;
+  overflow: visible;
+}
+
+:root[data-skin="classic"][data-style="qq"] .composer-row {
+  height: 100%;
+  align-items: stretch;
+  grid-template-columns: 32px 32px 1fr auto;
+  grid-template-rows: 32px auto minmax(0, 1fr) 32px;
+  grid-template-areas:
+    "emoji attach . ."
+    "reply reply reply reply"
+    "input input input input"
+    ". . . send";
+  min-height: 0;
+  padding: 6px 0 0;
+  row-gap: 0;
+  border-radius: 0;
+  background: transparent;
+  box-shadow: none;
+}
+
+:root[data-skin="classic"][data-style="qq"] .composer-row:focus-within {
+  box-shadow: none;
+}
+
+:root[data-skin="classic"][data-style="qq"] .composer textarea {
+  grid-area: input;
+  align-self: stretch;
+  box-sizing: border-box;
+  min-height: 100%;
+  max-height: none;
+  height: 100% !important;
+  padding: 1px 2px 0;
+  color: var(--text-1);
+  caret-color: var(--qq-blue);
+  resize: none;
+  overflow-y: auto;
+}
+
+:root[data-skin="classic"][data-style="qq"] .send-button {
+  grid-area: send;
+  height: 32px;
+  padding: 0 24px;
+  justify-self: end;
+  border-radius: 5px;
+  background: #0066cc;
+  color: #ffffff;
+  box-shadow: none;
+}
+
+:root[data-skin="classic"][data-style="qq"] .emoji-button {
+  grid-area: emoji;
+  align-self: center;
+}
+
+:root[data-skin="classic"][data-style="qq"] .attach-button {
+  grid-area: attach;
+  align-self: center;
+}
+
+:root[data-skin="classic"][data-style="qq"] .qq-reply-bar {
+  grid-area: reply;
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 5px;
+  width: 100%;
+  padding: 0;
+  border-radius: 0;
+  background: transparent;
+  -webkit-backdrop-filter: none;
+  backdrop-filter: none;
+  box-shadow: none;
+  text-align: left;
+}
+
+:root[data-skin="classic"][data-style="qq"] .qq-reply-card {
+  position: relative;
+  display: flex;
+  align-items: center;
+  width: min(680px, 100%);
+  min-height: 58px;
+  padding: 8px 32px 8px 10px;
+  border-radius: 6px;
+  background: #eeeeee;
+}
+
+:root[data-skin="classic"][data-style="qq"] .qq-reply-card .reply-copy {
+  gap: 2px;
+  color: #242628;
+  font-size: 14px;
+  line-height: 20px;
+}
+
+:root[data-skin="classic"][data-style="qq"] .qq-reply-card .reply-copy b {
+  font-weight: 500;
+}
+
+:root[data-skin="classic"][data-style="qq"] .qq-reply-card .private-preview {
+  color: #242628;
+  white-space: normal;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+}
+
+:root[data-skin="classic"][data-style="qq"] .qq-reply-card .icon-button {
+  position: absolute;
+  top: 50%;
+  right: 7px;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  color: #777b80;
+  background: #e4e5e6;
+  transform: translateY(-50%);
+}
+
+:root[data-skin="classic"][data-style="qq"] .qq-reply-mention {
+  display: inline-flex;
+  align-items: center;
+  align-self: flex-start;
+  gap: 3px;
+  width: auto;
+  padding: 0 1px;
+  color: #1688d4;
+  font-size: 14px;
+  line-height: 20px;
+}
+
+:root[data-skin="classic"][data-style="qq"] .qq-reply-mention-remove {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  color: #858b92;
+  background: #e1e3e5;
+}
+
+:root[data-skin="classic"][data-style="qq"] .qq-reply-mention-add {
+  color: var(--text-3);
+  font-size: 12px;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  :root[data-skin="classic"][data-style="qq"] .qq-reply-mention-add:hover {
+    color: #1688d4;
+    text-decoration: underline;
+    text-underline-offset: 2px;
+  }
+}
+
+:root[data-skin="classic"][data-style="qq"][data-theme="dark"] .qq-reply-card {
+  background: #34363b;
+}
+
+:root[data-skin="classic"][data-style="qq"][data-theme="dark"] :is(.qq-reply-card .reply-copy, .qq-reply-card .private-preview) {
+  color: rgba(255, 255, 255, .9);
+}
+
+:root[data-skin="classic"][data-style="qq"][data-theme="dark"] .qq-reply-card .icon-button {
+  color: rgba(255, 255, 255, .62);
+  background: rgba(255, 255, 255, .1);
+}
+
+:root[data-skin="classic"][data-style="qq"][data-theme="dark"] .qq-reply-mention {
+  color: #55b7f5;
+}
+
+:root[data-skin="classic"][data-style="qq"][data-theme="dark"] .qq-reply-mention-remove {
+  color: rgba(255, 255, 255, .58);
+  background: rgba(255, 255, 255, .1);
+}
+
+:root[data-skin="classic"][data-style="qq"] .send-button:disabled {
+  background: #0066cc;
+  color: #408cd9;
+  box-shadow: none;
+  opacity: 1;
+}
+
+:root[data-skin="classic"][data-style="qq"] :is(.emoji-button, .attach-button) {
+  color: var(--text-2);
+}
+
+@media (hover: hover) and (pointer: fine) {
+  :root[data-skin="classic"][data-style="qq"] :is(.emoji-button, .attach-button):hover:not(:disabled) {
+    color: var(--qq-blue);
+    background: color-mix(in srgb, var(--qq-blue) 10%, transparent);
+  }
+}
+
+:root[data-skin="classic"][data-style="qq"] .members-panel {
+  background: var(--classic-list);
+  box-shadow: inset 1px 0 0 var(--qq-border);
+  border-top-right-radius: 12px;
+  overflow: hidden;
+}
+
+:root[data-skin="classic"][data-style="qq"][data-theme="dark"] .members-panel::before {
+  content: "";
+  position: absolute;
+  z-index: 10;
+  top: 0;
+  right: 0;
+  width: 12px;
+  height: 12px;
+  background: var(--qq-topbar);
+  -webkit-mask: radial-gradient(circle at 0 100%, transparent 11.5px, #000 12px);
+  mask: radial-gradient(circle at 0 100%, transparent 11.5px, #000 12px);
+  pointer-events: none;
+}
+
+/* 宽屏群聊把成员栏停靠在右侧，和桌面 QQ 一样挤压聊天区而不是盖住消息。 */
+@media (min-width: 1100px) {
+  :root[data-skin="classic"][data-style="qq"] .members-panel {
+    position: relative;
+    top: auto;
+    right: auto;
+    bottom: auto;
+    flex: 0 0 292px;
+    width: 292px;
+    height: auto;
+    margin: 0;
+    border-radius: 0 12px 0 0;
+    animation: none;
+  }
+}
+
+:root[data-skin="classic"][data-style="qq"] .members-panel-heading {
+  min-height: 52px;
+  padding: 10px 10px 8px 16px;
+}
+
+:root[data-skin="classic"][data-style="qq"] .members-panel-heading h3 {
+  font-size: 14px;
+  font-weight: 600;
+}
+
+:root[data-skin="classic"][data-style="qq"] .qq-member-search {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  height: 32px;
+  margin: 0 10px 8px;
+  padding: 0 8px;
+  border-radius: 6px;
+  background: var(--classic-field);
+  color: var(--text-3);
+}
+
+:root[data-skin="classic"][data-style="qq"][data-theme="light"] .qq-member-search {
+  background: #ebebeb;
+}
+
+:root[data-skin="classic"][data-style="qq"][data-theme="dark"] :is(.composer-area, .qq-member-search) {
+  background: #222222;
+}
+
+:root[data-skin="classic"][data-style="qq"] .qq-member-search input {
+  min-width: 0;
+  height: 30px;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  box-shadow: none;
+  font-size: 12px;
+}
+
+:root[data-skin="classic"][data-style="qq"] .qq-member-search .icon-button {
+  width: 22px;
+  height: 22px;
+}
+
+:root[data-skin="classic"][data-style="qq"] .qq-member-empty {
+  padding: 14px 8px;
+  text-align: center;
+  font-size: 12px;
+  color: var(--text-3);
+}
+
+:root[data-skin="classic"][data-style="qq"] :is(.history-entry, .add-member-button) {
+  min-height: 36px;
+  padding: 7px 9px;
+  border-radius: 6px;
+}
+
+:root[data-skin="classic"][data-style="qq"] .add-member-button {
+  background: transparent;
+  box-shadow: inset 0 0 0 1px var(--qq-border);
+}
+
+:root[data-skin="classic"][data-style="qq"] .members-list {
+  padding: 2px 6px 10px;
+}
+
+:root[data-skin="classic"][data-style="qq"] .member-row {
+  min-height: 42px;
+  padding: 5px 8px;
+  border-radius: 6px;
+}
+
+:root[data-skin="classic"][data-style="qq"] .member-row:hover {
+  background: var(--classic-hover);
+}
+
+:root[data-skin="classic"][data-style="qq"] .owner-tag,
+:root[data-skin="classic"][data-style="qq"] .admin-tag {
+  padding: 0 5px;
+  border-radius: 3px;
+  background: color-mix(in srgb, var(--qq-blue) 14%, transparent);
+  color: color-mix(in srgb, var(--qq-blue) 78%, var(--text-1));
+}
+
+:root[data-skin="classic"][data-style="qq"] .announcement-card {
+  margin: 2px 10px 8px;
+  padding: 9px 10px;
+  border-radius: 6px;
+  background: var(--classic-field);
+}
+
+:root[data-skin="classic"][data-style="qq"] .saved-list {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+:root[data-skin="classic"][data-style="qq"] .saved-list .saved-row {
+  padding: 2px 4px;
+  border-radius: 7px;
+  background: var(--classic-list);
+}
+
+:root[data-skin="classic"][data-style="qq"] .saved-list .history-result {
+  min-height: 54px;
+  border-radius: 6px;
+}
+
+/* QQ 资料卡：头像在左、资料在右，操作按钮横向排列，和微信式纵向资料卡区分。 */
+:root[data-skin="classic"][data-style="qq"] .profile-card {
+  width: 360px;
+  display: grid;
+  grid-template-columns: 74px minmax(0, 1fr);
+  align-items: start;
+  column-gap: 14px;
+  row-gap: 3px;
+  padding: 18px;
+  border-radius: 10px;
+  text-align: left;
+  background: var(--classic-list);
+  -webkit-backdrop-filter: none;
+  backdrop-filter: none;
+  box-shadow: 0 14px 38px rgba(0, 0, 0, .2), inset 0 0 0 1px var(--qq-border);
+}
+
+:root[data-skin="classic"][data-style="qq"] .profile-card > .avatar {
+  grid-column: 1;
+  grid-row: 1 / span 3;
+  width: 74px !important;
+  height: 74px !important;
+}
+
+:root[data-skin="classic"][data-style="qq"] .profile-card h3 {
+  grid-column: 2;
+  justify-content: flex-start;
+  min-width: 0;
+  min-height: 25px;
+  margin: 3px 0 0;
+  font-size: 17px;
+}
+
+:root[data-skin="classic"][data-style="qq"] .profile-card > .profile-status {
+  grid-column: 2;
+  margin: 0;
+  text-align: left;
+}
+
+:root[data-skin="classic"][data-style="qq"] .profile-card > :is(.profile-custom-status, dl, .profile-note, form, .profile-card-actions, .profile-group-actions) {
+  grid-column: 1 / -1;
+}
+
+:root[data-skin="classic"][data-style="qq"] .profile-card .profile-custom-status {
+  margin: 7px 0 0;
+  padding: 8px 10px;
+  border-radius: 6px;
+  background: var(--classic-field);
+}
+
+:root[data-skin="classic"][data-style="qq"] .profile-card dl {
+  display: grid;
+  grid-template-columns: 72px minmax(0, 1fr);
+  gap: 7px 10px;
+  width: auto;
+  margin: 9px 0 0;
+  padding: 10px;
+  border-radius: 6px;
+  background: var(--classic-field);
+}
+
+:root[data-skin="classic"][data-style="qq"] .profile-card :is(dt, dd) {
+  margin: 0;
+}
+
+:root[data-skin="classic"][data-style="qq"] .profile-card dd + dt {
+  margin-top: 0;
+}
+
+:root[data-skin="classic"][data-style="qq"] .profile-card .profile-note {
+  margin-top: 8px;
+  border-radius: 6px;
+  background: var(--classic-field);
+}
+
+:root[data-skin="classic"][data-style="qq"] .profile-card-actions {
+  display: flex;
+  gap: 8px;
+  margin-top: 12px;
+}
+
+:root[data-skin="classic"][data-style="qq"] .profile-card-actions button {
+  flex: 1 1 0;
+  width: auto;
+  min-width: 0;
+  height: 34px;
+  margin: 0;
+  padding: 0 12px;
+  border-radius: 5px;
+}
+
+:root[data-skin="classic"][data-style="qq"] .profile-card-actions .primary-button {
+  background: #0b8ff1;
+}
+
+:root[data-skin="classic"][data-style="qq"] .profile-card-actions .secondary-button {
+  background: transparent;
+  box-shadow: inset 0 0 0 1px var(--classic-box-line);
+}
+
+:root[data-skin="classic"][data-style="qq"] .profile-group-actions {
+  justify-content: flex-start;
+  gap: 16px;
+  margin-top: 10px;
+}
+
+:root[data-skin="classic"][data-style="qq"] .modal,
+:root[data-skin="classic"][data-style="qq"] .quick-switcher {
+  border-radius: 12px;
+}
+
+/* 手机：继续使用白/浅灰列表和中性炭灰深色，不引入额外蓝色底。 */
+@media (max-width: 760px) {
+  :root[data-skin="classic"][data-style="qq"][data-theme="light"] {
+    --canvas: #f4f5f7;
+    --classic-list: #ffffff;
+    --classic-bar: #f4f5f7;
+    --classic-search: #eef0f3;
+  }
+
+  :root[data-skin="classic"][data-style="qq"] {
+    --classic-bar: #24252a;
+    --classic-list: #25262b;
+    --canvas: #2b2c30;
+  }
+
+  :root[data-skin="classic"][data-style="qq"] .conversation {
+    width: 100%;
+    margin: 0;
+    border-radius: 0;
+  }
+
+  :root[data-skin="classic"][data-style="qq"] .conversation.active {
+    box-shadow: none;
+  }
+
+  :root[data-skin="classic"][data-style="qq"] .space-heading {
+    border-bottom: 0;
+  }
+
+  :root[data-skin="classic"][data-style="qq"] .composer-area {
+    height: auto;
+    overflow: visible;
+    background: var(--classic-bar);
+    box-shadow: inset 0 1px 0 var(--qq-border);
+  }
+
+  :root[data-skin="classic"][data-style="qq"] .qq-composer-resizer {
+    display: none;
+  }
+
+  :root[data-skin="classic"][data-style="qq"] .composer-row {
+    grid-template-columns: 1fr 40px 40px auto;
+    grid-template-rows: auto 40px 40px;
+    grid-template-areas:
+      "reply reply reply reply"
+      "input input input input"
+      "emoji attach . send";
+    min-height: 88px;
+    padding: 4px 0;
+    background: transparent;
+    box-shadow: none;
+  }
+
+  :root[data-skin="classic"][data-style="qq"] .composer textarea {
+    border-radius: 9px;
+    background: var(--classic-box);
+  }
+
+  :root[data-skin="classic"][data-style="qq"] .send-button {
+    height: 40px;
+    border-radius: 5px;
+  }
+
+  :root[data-skin="classic"][data-style="qq"] .mobile-tabs {
+    background: var(--classic-bar);
+  }
+
+  :root[data-skin="classic"][data-style="qq"] .profile-card {
+    width: calc(100vw - 16px);
+    max-width: 360px;
+    grid-template-columns: 62px minmax(0, 1fr);
+    padding: 16px;
+  }
+
+  :root[data-skin="classic"][data-style="qq"] .profile-card > .avatar {
+    width: 62px !important;
+    height: 62px !important;
+  }
+
+  :root[data-skin="classic"][data-style="qq"] .profile-card-actions {
+    flex-wrap: wrap;
+  }
+}
