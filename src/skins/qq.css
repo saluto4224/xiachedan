@@ -656,6 +656,7 @@
 
 :root[data-skin="classic"][data-style="qq"] .composer-row {
   height: 100%;
+  align-items: stretch;
   grid-template-columns: 32px 32px 1fr auto;
   grid-template-rows: 32px auto minmax(0, 1fr) 32px;
   grid-template-areas:
@@ -678,13 +679,15 @@
 :root[data-skin="classic"][data-style="qq"] .composer textarea {
   grid-area: input;
   align-self: stretch;
-  min-height: 0;
+  box-sizing: border-box;
+  min-height: 100%;
   max-height: none;
-  height: auto;
+  height: 100% !important;
   padding: 1px 2px 0;
   color: var(--text-1);
   caret-color: var(--qq-blue);
   resize: none;
+  overflow-y: auto;
 }
 
 :root[data-skin="classic"][data-style="qq"] .send-button {
