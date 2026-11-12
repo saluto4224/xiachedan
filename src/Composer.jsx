@@ -298,11 +298,11 @@ export default function Composer({ room, connected, onQueue, notify, reply, repl
     </div>}
     {/* 附件统一收进回形针菜单：图片或视频、文件 */}
     <button type="button" className="round-button glass attach-button" aria-label="添加附件" title="添加附件（也可拖入或粘贴）" aria-haspopup="menu" aria-expanded={Boolean(attachMenu)} disabled={sending || !connected}
-      onClick={event => { const rect = event.currentTarget.getBoundingClientRect(); setAttachMenu(attachMenu ? null : { x: rect.left, y: rect.top - 16 - (3 + matchMedia('(pointer: coarse)').matches + Boolean(onCreatePoll) + Boolean(onSchedule)) * 36, label: '添加附件', items: [
+      onClick={event => { const rect = event.currentTarget.getBoundingClientRect(); setAttachMenu(attachMenu ? null : { x: rect.left, above: rect.top - 10, label: '添加附件', items: [
         { id: 'media', label: '图片或视频', action: () => input.current.click() },
         ...(matchMedia('(pointer: coarse)').matches ? [{ id: 'camera', label: '拍照', action: () => cameraInput.current.click() }] : []),
         { id: 'file', label: '文件（最大 100 MB）', action: () => fileInput.current.click() },
-        { id: 'phrases', label: '常用语…', action: () => setAttachMenu({ x: rect.left, y: rect.top - 16 - Math.max(1, phrases.length) * 36, label: '常用语', items: phrases.length
+        { id: 'phrases', label: '常用语…', action: () => setAttachMenu({ x: rect.left, above: rect.top - 10, label: '常用语', items: phrases.length
           ? phrases.map((text, index) => ({ id: `phrase-${index}`, label: text.replace(/\s+/g, ' ').slice(0, 40), action: () => insertText(text) }))
           : [{ id: 'none', label: '还没有常用语，在「设置 → 聊天」里添加', action: () => {} }] }) },
         ...(onCreatePoll ? [{ id: 'poll', label: '投票', action: onCreatePoll }] : []),

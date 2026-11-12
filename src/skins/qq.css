@@ -651,7 +651,7 @@
   padding: 4px 14px 12px;
   background: var(--canvas);
   box-shadow: none;
-  overflow: hidden;
+  overflow: visible;
 }
 
 :root[data-skin="classic"][data-style="qq"] .composer-row {

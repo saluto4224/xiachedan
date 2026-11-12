@@ -428,9 +428,14 @@ export function OutboxMessage({ item, avatarColumn, onRetry, onDiscard }) {
 
 export function ContextMenu({ menu, onClose }) {
   const ref = useRef();
+  const [measuredTop, setMeasuredTop] = useState(null);
   const smallScreen = matchMedia('(max-width: 760px)').matches;
   const menuWidth = smallScreen ? 220 : 152;
   const viewportHeight = window.visualViewport?.height || innerHeight;
+  useLayoutEffect(() => {
+    if (menu.above == null || !ref.current) return;
+    setMeasuredTop(Math.max(8, menu.above - ref.current.getBoundingClientRect().height));
+  }, [menu.above, menu.items.length]);
   useEffect(() => {
     const dismiss = event => { if (!ref.current?.contains(event.target)) onClose(); };
     const key = event => {
@@ -449,7 +454,9 @@ export function ContextMenu({ menu, onClose }) {
     document.addEventListener('scroll', onClose, true);
     return () => { document.removeEventListener('pointerdown', dismiss); document.removeEventListener('keydown', key); window.removeEventListener('blur', onClose); window.removeEventListener('resize', onClose); document.removeEventListener('scroll', onClose, true); };
   }, [onClose]);
-  return <div ref={ref} role="menu" aria-label={menu.label} className="message-context-menu" onContextMenu={event => { event.preventDefault(); event.stopPropagation(); }} style={{ left: Math.max(8, Math.min(menu.x, innerWidth - menuWidth - 8)), top: Math.max(8, Math.min(menu.y, viewportHeight - menu.items.length * (smallScreen ? 44 : 36) - 16)), maxHeight: viewportHeight - 16, overflowY: 'auto' }}>{menu.items.map((item, index) => <button key={item.id} autoFocus={index === 0} role="menuitem" onClick={() => { onClose(); item.action(); }}>{item.label}</button>)}</div>;
+  const fallbackTop = menu.y ?? 8;
+  const top = measuredTop ?? Math.max(8, Math.min(fallbackTop, viewportHeight - menu.items.length * (smallScreen ? 44 : 36) - 16));
+  return <div ref={ref} role="menu" aria-label={menu.label} className="message-context-menu" onContextMenu={event => { event.preventDefault(); event.stopPropagation(); }} style={{ left: Math.max(8, Math.min(menu.x, innerWidth - menuWidth - 8)), top, maxHeight: viewportHeight - 16, overflowY: 'auto' }}>{menu.items.map((item, index) => <button key={item.id} autoFocus={index === 0} role="menuitem" onClick={() => { onClose(); item.action(); }}>{item.label}</button>)}</div>;
 }
 
 // 资料卡：点头像或名字弹出，显示在线状态、部门、签名；可以直接发消息（自己的卡片是编辑资料）。
