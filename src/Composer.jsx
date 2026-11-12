@@ -13,7 +13,7 @@ import ImageEditor from './ImageEditor';
 
 const empty = { text: '', files: [], mentions: [] };
 const EVERYONE = { id: '*', name: '所有人' };
-export default function Composer({ room, connected, onQueue, notify, reply, replyAuthor, onCancelReply, privateMode, members = [], canMentionAll = false, onTyping, editing, onCancelEdit, onEdited, onEditLast, onCreatePoll, onSchedule, notice, sendKey = 'enter', onDraft, injectDraft, injectShare, placeholder, phrases = [] }) {
+export default function Composer({ room, connected, onQueue, notify, reply, replyAuthor, onCancelReply, privateMode, skin, members = [], canMentionAll = false, onTyping, editing, onCancelEdit, onEdited, onEditLast, onCreatePoll, onSchedule, notice, sendKey = 'enter', onDraft, injectDraft, injectShare, placeholder, phrases = [] }) {
   const typedAt = useRef(0);
   const [attachMenu, setAttachMenu] = useState(null);
   const [picker, setPicker] = useState(null);
@@ -270,7 +270,7 @@ export default function Composer({ room, connected, onQueue, notify, reply, repl
     </div>}
     {notice}
     {editing && <div className="reply-bar editing-bar" role="status"><span className="reply-copy"><b>编辑消息</b><PrivatePreview privateMode={privateMode}>{previewText(editing)}</PrivatePreview></span><IconButton icon={X} label="取消编辑" size={14} onClick={onCancelEdit} /></div>}
-    {reply && !editing && <div className="reply-bar" role="status"><span className="reply-copy"><b>回复 {replyAuthor}</b><PrivatePreview privateMode={privateMode}>{reply.quote ? `“${reply.quote}”` : previewText(reply)}</PrivatePreview></span><IconButton icon={X} label="取消回复" size={14} onClick={onCancelReply} /></div>}
+    {reply && !editing && skin !== 'qq' && <div className="reply-bar" role="status"><span className="reply-copy"><b>回复 {replyAuthor}</b><PrivatePreview privateMode={privateMode}>{reply.quote ? `“${reply.quote}”` : previewText(reply)}</PrivatePreview></span><IconButton icon={X} label="取消回复" size={14} onClick={onCancelReply} /></div>}
     {draft.files.length > 0 && !editing && <div className="attachment-queue">{draft.files.map(item => <div className={`queued-file ${item.error ? 'failed' : ''}`} key={item.id}>
       {item.file.type.startsWith('image/') ? <img src={item.url} alt="待发送图片" /> : <span className="queued-video">{item.file.type.startsWith('video/') ? <Film size={18} /> : <FileText size={18} />}</span>}
       <div><span>{item.file.name}</span><small>{item.error ? '上传失败' : item.attachment ? formatSize(item.file.size) : `上传 ${item.progress}%`}</small></div>
@@ -282,6 +282,10 @@ export default function Composer({ room, connected, onQueue, notify, reply, repl
     </div>}
     {editingImage && <ImageEditor file={editingImage.file} onClose={() => setEditingImage(null)} onDone={file => { const item = editingImage; setEditingImage(null); sendVersion({ ...item, edited: true }, room.id, file); }} />}
     <div className="composer-row">
+    {reply && !editing && skin === 'qq' && <div className="reply-bar qq-reply-bar" role="status">
+      <div className="qq-reply-card"><span className="reply-copy"><b>{replyAuthor}：</b><PrivatePreview privateMode={privateMode}>{reply.quote ? `“${reply.quote}”` : previewText(reply)}</PrivatePreview></span><IconButton icon={X} label="取消回复" size={13} onClick={onCancelReply} /></div>
+      <span className="qq-reply-mention">@{replyAuthor}</span>
+    </div>}
     {/* 附件统一收进回形针菜单：图片或视频、文件 */}
     <button type="button" className="round-button glass attach-button" aria-label="添加附件" title="添加附件（也可拖入或粘贴）" aria-haspopup="menu" aria-expanded={Boolean(attachMenu)} disabled={sending || !connected}
       onClick={event => { const rect = event.currentTarget.getBoundingClientRect(); setAttachMenu(attachMenu ? null : { x: rect.left, y: rect.top - 16 - (3 + matchMedia('(pointer: coarse)').matches + Boolean(onCreatePoll) + Boolean(onSchedule)) * 36, label: '添加附件', items: [
