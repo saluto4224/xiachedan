@@ -151,6 +151,9 @@ export default function App() {
   // 侧栏宽度可拖动调整并记住；拖到很窄时收成只显示头像的窄栏。
   const [sidebarWidth, setSidebarWidth] = useState(() => { const value = readStorage('linliao.sidebarWidth', 300); return value === 76 || (value >= 220 && value <= 440) ? value : 300; });
   const resizing = useRef(null);
+  const [composerHeight, setComposerHeight] = useState(() => { const value = Number(readStorage('linliao.qqComposerHeight', 190)); return Number.isFinite(value) && value >= 120 && value <= 1200 ? value : 190; });
+  const composerResize = useRef(null);
+  const chatColumn = useRef(null);
   const [dismissedNotices, setDismissedNotices] = useState(() => readStorage('linliao.announcements', {}));
   const [readDetail, setReadDetail] = useState(null);
   const [profileCard, setProfileCard] = useState(null);
@@ -542,6 +545,20 @@ export default function App() {
     if (conversations.find(room => room.id === id)?.markedUnread) conversationAction('mark-read', id, conversationScope);
     setSelected(id); setMobileChat(true); setReadDetail(null); setContextMenu(null); setPanelView('members'); setShowMembers(false);
   }
+
+  function composerBounds() {
+    const available = chatColumn.current?.clientHeight || 720;
+    const min = Math.max(120, Math.round(available * .25));
+    const max = Math.max(min, Math.round(available * .75));
+    return { min, max };
+  }
+
+  function setComposerSize(value) {
+    const { min, max } = composerBounds();
+    const next = Math.round(Math.min(max, Math.max(min, value)));
+    setComposerHeight(next);
+    localStorage.setItem('linliao.qqComposerHeight', JSON.stringify(next));
+  }
   function showContextMenu(event, options, items, label) {
     event.preventDefault(); event.stopPropagation();
     setContextMenu(null); setReadDetail(null);
@@ -926,7 +943,7 @@ export default function App() {
     </aside>
     <main className="chat-main">
       {room ? <>
-      <div className="conversation-body"><section className="chat-column">
+      <div className="conversation-body"><section className="chat-column" ref={chatColumn} style={{ '--qq-composer-height': `${composerHeight}px` }}>
         <header className="chat-toolbar" data-drag-region>
           <IconButton icon={ChevronLeft} label="返回会话列表" className="back-button glass" onClick={() => setMobileChat(false)} />
           <div className="toolbar-title glass">{room.kind === 'direct' && peer ? avatarButton(peer, roomIcon(room, 34), 'toolbar-icon avatar-button') : canEditRoomAvatar ? <button type="button" className="toolbar-icon avatar-button" aria-label="设置群头像" title="设置群头像" aria-haspopup="dialog" onClick={() => setModal('roomAvatar')}>{roomIcon(room, 34)}</button> : <span className="toolbar-icon">{roomIcon(room, 34)}</span>}<span className="toolbar-copy"><h2>{room.name}{threePane && room.kind !== 'direct' && <span className="title-count">({groupMembers.length})</span>}{room.kind === 'group' && room.allMuted && <span className="auto-delete-tag"><MicOff size={12} />全员禁言</span>}{room.autoDelete > 0 && <span className="auto-delete-tag" title={`消息发出 ${autoDeleteLabel(room.autoDelete)} 后自动删除`}><Timer size={12} />{autoDeleteLabel(room.autoDelete)}</span>}</h2><span className={`toolbar-subtitle ${typingLabel(room) ? 'typing-text' : ''}`} aria-live="polite">{typingLabel(room) || subtitle}</span></span></div>
@@ -962,12 +979,20 @@ export default function App() {
         <button className="secondary-button" onClick={() => setSelection(null)}>取消</button>
         <button className="secondary-button" disabled={!selection.length || overSelected} onClick={() => setHiding([...selection])}>删除</button>
         <ForwardButtons count={selection.length} disabled={!selection.length || overSelected} onForward={merge => { setForwardMerge(merge); setForwarding([...selection]); }} />
-      </div> : room.kind === 'group' && room.allMuted && !isGroupManager ? <div className="muted-notice glass" role="status">全员禁言中，只有群主和管理员可以发言</div> : state.me.muted ? <div className="muted-notice glass" role="status">你已被管理员禁言{state.me.mutedUntil ? `，${new Date(state.me.mutedUntil).toLocaleString('zh-CN', { hour12: false, month: 'numeric', day: 'numeric', hour: '2-digit', minute: '2-digit' })} 后恢复` : ''}</div> : <Composer skin={skin} injectDraft={injectDraft} injectShare={injectShare} sendKey={chatPrefs.sendKey} onDraft={(id, text) => setDraftTexts(previous => (previous[id] || '') === text ? previous : { ...previous, [id]: text })} room={room} connected={connected && !loggingOut} onQueue={(payload, preview) => { sticky.current = true; outbox.send(payload, preview); }} notify={notify} privateMode={privateMode}
+      </div> : room.kind === 'group' && room.allMuted && !isGroupManager ? <div className="muted-notice glass" role="status">全员禁言中，只有群主和管理员可以发言</div> : state.me.muted ? <div className="muted-notice glass" role="status">你已被管理员禁言{state.me.mutedUntil ? `，${new Date(state.me.mutedUntil).toLocaleString('zh-CN', { hour12: false, month: 'numeric', day: 'numeric', hour: '2-digit', minute: '2-digit' })} 后恢复` : ''}</div> : <>{skin === 'qq' && <div className="qq-composer-resizer" role="separator" aria-orientation="horizontal" aria-label="调整输入区高度" title="拖动调整输入区高度，双击恢复默认" tabIndex={0}
+        onPointerDown={event => { event.preventDefault(); event.currentTarget.setPointerCapture(event.pointerId); composerResize.current = { y: event.clientY, height: composerHeight }; }}
+        onPointerMove={event => { if (!composerResize.current) return; setComposerSize(composerResize.current.height + composerResize.current.y - event.clientY); }}
+        onPointerUp={() => { composerResize.current = null; }} onPointerCancel={() => { composerResize.current = null; }}
+        onDoubleClick={() => setComposerSize(190)}
+        onKeyDown={event => {
+          if (event.key !== 'ArrowUp' && event.key !== 'ArrowDown') return;
+          event.preventDefault(); setComposerSize(composerHeight + (event.key === 'ArrowUp' ? 20 : -20));
+        }}><span /></div>}<Composer skin={skin} injectDraft={injectDraft} injectShare={injectShare} sendKey={chatPrefs.sendKey} onDraft={(id, text) => setDraftTexts(previous => (previous[id] || '') === text ? previous : { ...previous, [id]: text })} room={room} connected={connected && !loggingOut} onQueue={(payload, preview) => { sticky.current = true; outbox.send(payload, preview); }} notify={notify} privateMode={privateMode}
         members={room.kind === 'direct' ? [] : groupMembers.filter(user => user.id !== state.me.id)} canMentionAll={room.kind === 'group' || (room.kind === 'public' && (isOwner || isAdmin))} phrases={state.phrases}
         notice={scheduled.roomId === room.id && scheduled.items.length > 0 && <button type="button" className="scheduled-bar glass" onClick={() => setModal('scheduled')}><Clock size={14} />{scheduled.items.length} 条定时消息待发送 · 最近 {new Date(scheduled.items[0].sendAt).toLocaleString('zh-CN', { hour12: false, month: 'numeric', day: 'numeric', hour: '2-digit', minute: '2-digit' })}</button>}
         onCreatePoll={() => setModal('poll')} onSchedule={text => setScheduleText(text)} onTyping={sendTyping} editing={editTarget} onCancelEdit={() => setEditing(null)} onEdited={message => { applyEdit(message); setEditing(null); }}
         onEditLast={() => { if (lastOwn) { setReplying(null); setEditing({ roomId: lastOwn.roomId, id: lastOwn.id }); } }}
-        reply={replyTarget} replyAuthor={replyTarget && (replyTarget.senderId === state.me.id ? '自己' : userMap[replyTarget.senderId]?.name || '成员')} onCancelReply={() => setReplying(null)} />}</section>
+        reply={replyTarget} replyAuthor={replyTarget && (replyTarget.senderId === state.me.id ? '自己' : userMap[replyTarget.senderId]?.name || '成员')} onCancelReply={() => setReplying(null)} /></>}</section>
       {showMembers && <aside className="members-panel glass" aria-label={panelView === 'history' ? '聊天记录' : panelView === 'files' ? '图片与文件' : panelView === 'thread' ? '话题' : '会话成员'}>{panelView === 'thread' && threadRoot
         ? <ThreadPanel key={threadRoot} rootId={threadRoot} room={room} viewerId={state.me.id} privateMode={privateMode} threadTick={threadTick} onBack={() => setPanelView('members')} notify={notify}
           onLoaded={items => { threadMessages.current = items; }} handlers={messageHandlers} userOf={userOf} reactionOptions={state.reactions || NO_REACTIONS} reactingTo={reactingTo} quickReact={chatPrefs.quickReact}

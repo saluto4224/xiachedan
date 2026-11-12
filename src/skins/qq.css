@@ -613,21 +613,57 @@
 }
 
 /* 输入区：低圆角输入容器、灰线工具和紧凑蓝色发送键。 */
+:root[data-skin="classic"][data-style="qq"] .qq-composer-resizer {
+  position: relative;
+  z-index: 4;
+  flex: 0 0 7px;
+  height: 7px;
+  margin: 0 14px;
+  cursor: row-resize;
+  touch-action: none;
+}
+
+:root[data-skin="classic"][data-style="qq"] .qq-composer-resizer::before {
+  content: "";
+  position: absolute;
+  top: 3px;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background: var(--qq-border);
+  transition: background-color 120ms var(--ease-out), box-shadow 120ms var(--ease-out);
+}
+
+:root[data-skin="classic"][data-style="qq"] .qq-composer-resizer:hover::before,
+:root[data-skin="classic"][data-style="qq"] .qq-composer-resizer:focus-visible::before {
+  background: var(--qq-blue);
+  box-shadow: 0 0 0 1px var(--qq-blue);
+}
+
+:root[data-skin="classic"][data-style="qq"] .qq-composer-resizer:focus-visible {
+  outline: none;
+}
+
 :root[data-skin="classic"][data-style="qq"] .composer-area {
+  flex: none;
+  height: var(--qq-composer-height, 190px);
+  min-height: 0;
   padding: 4px 14px 12px;
   background: var(--canvas);
   box-shadow: inset 0 1px 0 var(--qq-border);
+  overflow: hidden;
 }
 
 :root[data-skin="classic"][data-style="qq"] .composer-row {
+  height: 100%;
   grid-template-columns: 32px 32px 1fr auto;
-  grid-template-rows: 32px auto minmax(44px, 1fr) 32px;
+  grid-template-rows: 32px auto minmax(0, 1fr) 32px;
   grid-template-areas:
     "emoji attach . ."
     "reply reply reply reply"
     "input input input input"
     ". . . send";
-  min-height: 124px;
+  min-height: 0;
   padding: 6px 0;
   border-radius: 0;
   background: transparent;
@@ -640,8 +676,12 @@
 
 :root[data-skin="classic"][data-style="qq"] .composer textarea {
   grid-area: input;
+  min-height: 0;
+  max-height: none;
+  height: 100%;
   color: var(--text-1);
   caret-color: var(--qq-blue);
+  resize: none;
 }
 
 :root[data-skin="classic"][data-style="qq"] .send-button {
@@ -1052,8 +1092,14 @@
   }
 
   :root[data-skin="classic"][data-style="qq"] .composer-area {
+    height: auto;
+    overflow: visible;
     background: var(--classic-bar);
     box-shadow: inset 0 1px 0 var(--qq-border);
+  }
+
+  :root[data-skin="classic"][data-style="qq"] .qq-composer-resizer {
+    display: none;
   }
 
   :root[data-skin="classic"][data-style="qq"] .composer-row {
