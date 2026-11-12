@@ -261,6 +261,13 @@ export default function Composer({ room, connected, onQueue, notify, reply, repl
   const onDraftRef = useRef(onDraft);
   onDraftRef.current = onDraft;
   useEffect(() => { const id = room.id; return () => onDraftRef.current?.(id, draftsRef.current[id]?.text.trim() || ''); }, [room.id]);
+  const attachMenuPosition = (rect, itemCount) => {
+    if (skin === 'qq') {
+      const divider = document.querySelector('.qq-composer-resizer')?.getBoundingClientRect();
+      return { above: (divider?.bottom ?? rect.top) - 8 };
+    }
+    return { y: rect.top - 16 - itemCount * 36 };
+  };
   return <div className="composer-area">
     {slashOptions.length > 0 && <div className="mention-picker slash-picker" role="listbox" id="slash-picker" aria-label="插入格式">
       {slashOptions.map((item, index) => <button type="button" role="option" id={`slash-option-${index}`} key={item.id} aria-selected={index === slash.index} className={index === slash.index ? 'active' : ''}
@@ -298,11 +305,11 @@ export default function Composer({ room, connected, onQueue, notify, reply, repl
     </div>}
     {/* 附件统一收进回形针菜单：图片或视频、文件 */}
     <button type="button" className="round-button glass attach-button" aria-label="添加附件" title="添加附件（也可拖入或粘贴）" aria-haspopup="menu" aria-expanded={Boolean(attachMenu)} disabled={sending || !connected}
-      onClick={event => { const rect = event.currentTarget.getBoundingClientRect(); setAttachMenu(attachMenu ? null : { x: rect.left, above: rect.top - 10, label: '添加附件', items: [
+      onClick={event => { const rect = event.currentTarget.getBoundingClientRect(); setAttachMenu(attachMenu ? null : { x: rect.left, ...attachMenuPosition(rect, 3 + matchMedia('(pointer: coarse)').matches + Boolean(onCreatePoll) + Boolean(onSchedule)), label: '添加附件', items: [
         { id: 'media', label: '图片或视频', action: () => input.current.click() },
         ...(matchMedia('(pointer: coarse)').matches ? [{ id: 'camera', label: '拍照', action: () => cameraInput.current.click() }] : []),
         { id: 'file', label: '文件（最大 100 MB）', action: () => fileInput.current.click() },
-        { id: 'phrases', label: '常用语…', action: () => setAttachMenu({ x: rect.left, above: rect.top - 10, label: '常用语', items: phrases.length
+        { id: 'phrases', label: '常用语…', action: () => setAttachMenu({ x: rect.left, ...attachMenuPosition(rect, Math.max(1, phrases.length)), label: '常用语', items: phrases.length
           ? phrases.map((text, index) => ({ id: `phrase-${index}`, label: text.replace(/\s+/g, ' ').slice(0, 40), action: () => insertText(text) }))
           : [{ id: 'none', label: '还没有常用语，在「设置 → 聊天」里添加', action: () => {} }] }) },
         ...(onCreatePoll ? [{ id: 'poll', label: '投票', action: onCreatePoll }] : []),
